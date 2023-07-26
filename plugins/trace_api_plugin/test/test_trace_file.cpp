@@ -101,19 +101,19 @@ namespace {
                   {
                      {
                         0,
-                        "eosio.token"_n, "eosio.token"_n, "transfer"_n,
+                        "gax.token"_n, "gax.token"_n, "transfer"_n,
                         {{ "alice"_n, "active"_n }},
                         make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                      },
                      {
                         1,
-                        "alice"_n, "eosio.token"_n, "transfer"_n,
+                        "alice"_n, "gax.token"_n, "transfer"_n,
                         {{ "alice"_n, "active"_n }},
                         make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                      },
                      {
                         2,
-                        "bob"_n, "eosio.token"_n, "transfer"_n,
+                        "bob"_n, "gax.token"_n, "transfer"_n,
                         {{ "alice"_n, "active"_n }},
                         make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                      }
@@ -127,7 +127,7 @@ namespace {
             }
          }
       };
-      
+
       const block_trace_v1 bt2_v1 {
          {
             "0000000000000000000000000000000000000000000000000000000000000002"_h,
@@ -166,19 +166,19 @@ namespace {
                {
                   {
                      0,
-                     "eosio.token"_n, "eosio.token"_n, "transfer"_n,
+                     "gax.token"_n, "gax.token"_n, "transfer"_n,
                      {{ "alice"_n, "active"_n }},
                      make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                   },
                   {
                      1,
-                     "alice"_n, "eosio.token"_n, "transfer"_n,
+                     "alice"_n, "gax.token"_n, "transfer"_n,
                      {{ "alice"_n, "active"_n }},
                      make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                   },
                   {
                      2,
-                     "bob"_n, "eosio.token"_n, "transfer"_n,
+                     "bob"_n, "gax.token"_n, "transfer"_n,
                      {{ "alice"_n, "active"_n }},
                      make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                   }

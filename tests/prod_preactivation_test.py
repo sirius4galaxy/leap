@@ -98,7 +98,7 @@ try:
     Print("found digest ", digest, " of PREACTIVATE_FEATURE")
 
     node0 = cluster.getNode(0)
-    contract="eosio.bios"
+    contract="gax.bios"
     contractDir="libraries/testing/contracts/old_versions/v1.7.0-develop-preactivate_feature/%s" % (contract)
     wasmFile="%s.wasm" % (contract)
     abiFile="%s.abi" % (contract)

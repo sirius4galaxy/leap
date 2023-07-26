@@ -90,7 +90,7 @@ BOOST_FIXTURE_TEST_CASE(deep_mind, deep_mind_tester)
                ("account", "alice")
                ("permission", "test1")
                ("parent", "active")
-               ("auth", authority{{"eosio"_n, "active"_n}}));
+               ("auth", authority{{"gax"_n, "active"_n}}));
 
    produce_block();
 
@@ -102,7 +102,7 @@ BOOST_FIXTURE_TEST_CASE(deep_mind, deep_mind_tester)
 
    if(save_log)
    {
-      // Cannot use fc::copy as it does not copy to an existing destination file 
+      // Cannot use fc::copy as it does not copy to an existing destination file
       fc::rename(log_output.path().preferred_string(), DEEP_MIND_LOGFILE);
    }
    else

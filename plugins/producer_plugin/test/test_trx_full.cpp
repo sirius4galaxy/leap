@@ -101,10 +101,10 @@ BOOST_AUTO_TEST_SUITE(ordered_trxs_full)
 // even when blocks are aborted and some transactions fail.
 BOOST_AUTO_TEST_CASE(producer) {
    appbase::scoped_app app;
-   
+
    fc::temp_directory temp;
    auto temp_dir_str = temp.path().string();
-   
+
    {
       std::promise<std::tuple<producer_plugin*, chain_plugin*>> plugin_promise;
       std::future<std::tuple<producer_plugin*, chain_plugin*>> plugin_fut = plugin_promise.get_future();
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(producer) {
          fc::logger::get(DEFAULT_LOGGER).set_log_level(fc::log_level::debug);
          std::vector<const char*> argv =
                {"test", "--data-dir", temp_dir_str.c_str(), "--config-dir", temp_dir_str.c_str(),
-                "-p", "eosio", "-e", "--disable-subjective-billing=true" };
+                "-p", "gax", "-e", "--disable-subjective-billing=true" };
          app->initialize<chain_plugin, producer_plugin>( argv.size(), (char**) &argv[0] );
          app->startup();
          plugin_promise.set_value(
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(producer) {
 
       BOOST_REQUIRE( verify_equal(trxs, all_blocks ) );
 
-   } 
+   }
 }
 
 

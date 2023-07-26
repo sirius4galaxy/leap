@@ -66,7 +66,7 @@ struct block_header {
 };
 
 
-struct [[eosio::table("abihash"), eosio::contract("eosio.system")]] abi_hash {
+struct [[eosio::table("abihash"), eosio::contract("gax.system")]] abi_hash {
    name              owner;
    checksum256       hash;
    uint64_t primary_key()const { return owner.value; }
@@ -77,7 +77,7 @@ struct [[eosio::table("abihash"), eosio::contract("eosio.system")]] abi_hash {
 /*
  * Method parameters commented out to prevent generation of code that parses input data.
  */
-class [[eosio::contract("eosio.system")]] native : public eosio::contract {
+class [[eosio::contract("gax.system")]] native : public eosio::contract {
 public:
 
    using eosio::contract::contract;
