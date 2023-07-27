@@ -50,8 +50,8 @@ try:
         cluster.cleanup()
         Print("Stand up cluster")
         pnodes=4
-        abs_path = os.path.abspath(os.getcwd() + '/unittests/contracts/eosio.token/eosio.token.abi')
-        traceNodeosArgs=" --trace-rpc-abi eosio.token=" + abs_path
+        abs_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.token/gax.token.abi')
+        traceNodeosArgs=" --trace-rpc-abi gax.token=" + abs_path
         if cluster.launch(pnodes=pnodes, totalNodes=pnodes, extraNodeosArgs=traceNodeosArgs) is False:
             cmdError("launcher")
             errorExit("Failed to stand up eos cluster.")
@@ -122,7 +122,7 @@ try:
     Print("Validating accounts before user accounts creation")
     cluster.validateAccounts(None)
 
-    # create accounts via eosio as otherwise a bid is needed 
+    # create accounts via eosio as otherwise a bid is needed
     Print("Create new account %s via %s" % (testeraAccount.name, cluster.eosioAccount.name))
     transId=node.createInitializeAccount(testeraAccount, cluster.eosioAccount, stakedDeposit=0, waitForTransBlock=False, exitOnError=True)
 

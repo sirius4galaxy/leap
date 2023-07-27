@@ -79,10 +79,10 @@ def cleos_sign_test():
         '"delay_sec": 0,'
         '"context_free_actions": [],'
         '"actions": [{'
-            '"account": "eosio.token",'
+            '"account": "gax.token",'
             '"name": "transfer",'
             '"authorization": [{'
-            '"actor": "eosio",'
+            '"actor": "gax",'
             '"permission": "active"'
         '}'
         '],'
@@ -101,9 +101,9 @@ def cleos_sign_test():
     assert(b'"expiration": "2019-08-01T07:15:49"' in output)
     assert(b'"ref_block_num": 34881' in output)
     assert(b'"ref_block_prefix": 2972818865' in output)
-    assert(b'"account": "eosio.token"' in output)
+    assert(b'"account": "gax.token"' in output)
     assert(b'"name": "transfer"' in output)
-    assert(b'"actor": "eosio"' in output)
+    assert(b'"actor": "gax"' in output)
     assert(b'"permission": "active"' in output)
     assert(b'"data": "000000000000a6690000000000ea305501000000000000000453595300000000016d"' in output)
 
@@ -125,9 +125,9 @@ def cleos_sign_test():
     assert(b'"expiration": "2019-08-01T07:15:49"' in errs)
     assert(b'"ref_block_num": 34881' in errs)
     assert(b'"ref_block_prefix": 2972818865' in errs)
-    assert(b'"account": "eosio.token"' in errs)
+    assert(b'"account": "gax.token"' in errs)
     assert(b'"name": "transfer"' in errs)
-    assert(b'"actor": "eosio"' in errs)
+    assert(b'"actor": "gax"' in errs)
     assert(b'"permission": "active"' in errs)
     assert(b'"data": "000000000000a6690000000000ea305501000000000000000453595300000000016d"' in errs)
 
@@ -152,13 +152,13 @@ def processCleosCommand(cmd):
 
 def cleos_abi_file_test():
     """Test option --abi-file """
-    token_abi_path = os.path.abspath(os.getcwd() + '/unittests/contracts/eosio.token/eosio.token.abi')
-    system_abi_path = os.path.abspath(os.getcwd() + '/unittests/contracts/eosio.system/eosio.system.abi')
-    token_abi_file_arg = 'eosio.token' + ':' + token_abi_path
-    system_abi_file_arg = 'eosio' + ':' + system_abi_path
+    token_abi_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.token/gax.token.abi')
+    system_abi_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.system/gax.system.abi')
+    token_abi_file_arg = 'gax.token' + ':' + token_abi_path
+    system_abi_file_arg = 'gax' + ':' + system_abi_path
 
     # no option --abi-file
-    account = 'eosio.token'
+    account = 'gax.token'
     action = 'transfer'
     unpacked_action_data = '{"from":"aaa","to":"bbb","quantity":"10.0000 SYS","memo":"hello"}'
     # use URL http://127.0.0.1:12345 to make sure cleos not to connect to any running nodeos
@@ -167,13 +167,13 @@ def cleos_abi_file_test():
     assert(b'Failed http request to nodeos' in errs)
 
     # invalid option --abi-file
-    invalid_abi_arg = 'eosio.token' + ' ' + token_abi_path
+    invalid_abi_arg = 'gax.token' + ' ' + token_abi_path
     cmd = ['./programs/cleos/cleos', '-u', 'http://127.0.0.1:12345', '--abi-file', invalid_abi_arg, 'convert', 'pack_action_data', account, action, unpacked_action_data]
     outs, errs = processCleosCommand(cmd)
     assert(b'please specify --abi-file in form of <contract name>:<abi file path>.' in errs)
 
     # pack token transfer data
-    account = 'eosio.token'
+    account = 'gax.token'
     action = 'transfer'
     unpacked_action_data = '{"from":"aaa","to":"bbb","quantity":"10.0000 SYS","memo":"hello"}'
     packed_action_data = '0000000000008c31000000000000ce39a08601000000000004535953000000000568656c6c6f'
@@ -191,11 +191,11 @@ def cleos_abi_file_test():
     assert(b'"memo": "hello"' in outs)
 
     # pack account create data
-    account = 'eosio'
+    account = 'gax'
     action = 'newaccount'
 
     unpacked_action_data = """{
-        "creator": "eosio",
+        "creator": "gax",
         "name": "bob",
         "owner": {
           "threshold": 1,
@@ -228,7 +228,7 @@ def cleos_abi_file_test():
     # unpack account create data
     cmd = ['./programs/cleos/cleos', '-u','http://127.0.0.1:12345', '--abi-file', system_abi_file_arg, 'convert', 'unpack_action_data', account, action, packed_action_data]
     outs, errs = processCleosCommand(cmd)
-    assert(b'"creator": "eosio"' in outs)
+    assert(b'"creator": "gax"' in outs)
     assert(b'"name": "bob"' in outs)
 
     # pack transaction
@@ -241,15 +241,15 @@ def cleos_abi_file_test():
         "delay_sec": 0,
         "context_free_actions": [],
         "actions": [{
-            "account": "eosio",
+            "account": "gax",
             "name": "newaccount",
             "authorization": [{
-                "actor": "eosio",
+                "actor": "gax",
                 "permission": "active"
                 }
             ],
             "data": {
-                "creator": "eosio",
+                "creator": "gax",
                 "name": "bob",
                 "owner": {
                 "threshold": 1,
@@ -275,7 +275,7 @@ def cleos_abi_file_test():
             "hex_data": "0000000000ea30550000000000000e3d01000000010002c0ded2bc1f1305fb0faac5e6c03ee3a1924234985427b6167ca569d13df435cf0100000001000000010002c0ded2bc1f1305fb0faac5e6c03ee3a1924234985427b6167ca569d13df435cf01000000"
             },
             {
-            "account": "eosio.token",
+            "account": "gax.token",
             "name": "transfer",
             "authorization": [{
                 "actor": "aaa",
@@ -313,7 +313,7 @@ def cleos_abi_file_test():
     }"""
     cmd = ['./programs/cleos/cleos', '-u','http://127.0.0.1:12345', '--abi-file', system_abi_file_arg, token_abi_file_arg, 'convert', 'unpack_transaction', '--unpack-action-data', packed_trx]
     outs, errs = processCleosCommand(cmd)
-    assert(b'"creator": "eosio"' in outs)
+    assert(b'"creator": "gax"' in outs)
     assert(b'"name": "bob"' in outs)
 
     assert(b'"from": "aaa"' in outs)
@@ -325,11 +325,11 @@ def abi_file_with_nodeos_test():
     # push action token transfer with option `--abi-file`
     global testSuccessful
     try:
-        contractDir = os.path.abspath(os.getcwd() + "/unittests/contracts/eosio.token")
-        # make a malicious abi file by switching 'from' and 'to' in eosio.token.abi
-        token_abi_path = os.path.abspath(os.getcwd() + '/unittests/contracts/eosio.token/eosio.token.abi')
-        token_abi_file_arg = 'eosio.token' + ':' + token_abi_path
-        malicious_token_abi_path = os.path.abspath(os.getcwd() + '/unittests/contracts/eosio.token/malicious.eosio.token.abi')
+        contractDir = os.path.abspath(os.getcwd() + "/unittests/contracts/gax.token")
+        # make a malicious abi file by switching 'from' and 'to' in gax.token.abi
+        token_abi_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.token/gax.token.abi')
+        token_abi_file_arg = 'gax.token' + ':' + token_abi_path
+        malicious_token_abi_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.token/malicious.gax.token.abi')
         shutil.copyfile(token_abi_path, malicious_token_abi_path)
         replaces = [["from", "malicious"], ["to", "from"], ["malicious", "to"]]
         for replace in replaces:
@@ -356,37 +356,37 @@ def abi_file_with_nodeos_test():
         node.verifyAlive() # Setting node state to not alive
         node.relaunch(newChain=True, cachePopen=True)
         node.waitForBlock(1)
-        accountNames = ["eosio", "eosio.token", "alice", "bob"]
+        accountNames = ["gax", "gax.token", "alice", "bob"]
         accounts = []
         for name in accountNames:
             account = Account(name)
             account.ownerPrivateKey = account.activePrivateKey = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-            account.ownerPublicKey = account.activePublicKey = "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
+            account.ownerPublicKey = account.activePublicKey = "GAX6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"
             accounts.append(account)
-        walletMgr.create('eosio', [accounts[0]])
+        walletMgr.create('gax', [accounts[0]])
         node.createAccount(accounts[1], accounts[0], stakedDeposit=0)
-        node.publishContract(accounts[1], contractDir, 'eosio.token.wasm', 'eosio.token.abi')
-        account = 'eosio.token'
+        node.publishContract(accounts[1], contractDir, 'gax.token.wasm', 'gax.token.abi')
+        account = 'gax.token'
         action = 'create'
-        data = '{"issuer":"eosio.token","maximum_supply":"100000.0000 SYS","can_freeze":"0","can_recall":"0","can_whitelist":"0"}'
-        permission = '--permission eosio.token@active'
+        data = '{"issuer":"gax.token","maximum_supply":"100000.0000 SYS","can_freeze":"0","can_recall":"0","can_whitelist":"0"}'
+        permission = '--permission gax.token@active'
         node.pushMessage(account, action, data, permission)
         action = 'issue'
-        data = '{"from":"eosio.token","to":"eosio.token","quantity":"100000.0000 SYS","memo":"issue"}'
+        data = '{"from":"gax.token","to":"gax.token","quantity":"100000.0000 SYS","memo":"issue"}'
         node.pushMessage(account, action, data, permission)
         node.createAccount(accounts[2], accounts[0], stakedDeposit=0)
         node.createAccount(accounts[3], accounts[0], stakedDeposit=0)
 
         node.transferFunds(accounts[1], accounts[2], '100.0000 SYS')
 
-        node.processCleosCmd('set abi eosio.token ' + malicious_token_abi_path, 'set malicious eosio.token abi', returnType=ReturnType.raw)
+        node.processCleosCmd('set abi gax.token ' + malicious_token_abi_path, 'set malicious gax.token abi', returnType=ReturnType.raw)
 
         cmdArr = node.transferFundsCmdArr(accounts[2], accounts[3], '25.0000 SYS', 'm', False, None, False, False, 90, False)
         cmdArr.insert(6, '--print-request')
         cmdArr.insert(7, '--abi-file')
         cmdArr.insert(8, token_abi_file_arg)
         Utils.runCmdArrReturnStr(cmdArr)
-        balance = node.getCurrencyBalance('eosio.token', 'alice')
+        balance = node.getCurrencyBalance('gax.token', 'alice')
         assert balance == '75.0000 SYS\n'
         testSuccessful=True
     except Exception as e:

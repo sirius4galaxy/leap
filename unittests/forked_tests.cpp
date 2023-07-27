@@ -141,26 +141,26 @@ BOOST_AUTO_TEST_CASE( forking ) try {
    wlog("set producer schedule to [dan,sam,pam]");
    c.produce_blocks(30);
 
-   auto r2 = c.create_accounts( {"eosio.token"_n} );
+   auto r2 = c.create_accounts( {"gax.token"_n} );
    wdump((fc::json::to_pretty_string(r2)));
-   c.set_code( "eosio.token"_n, test_contracts::eosio_token_wasm() );
-   c.set_abi( "eosio.token"_n, test_contracts::eosio_token_abi().data() );
+   c.set_code( "gax.token"_n, test_contracts::eosio_token_wasm() );
+   c.set_abi( "gax.token"_n, test_contracts::eosio_token_abi().data() );
    c.produce_blocks(10);
 
 
-   auto cr = c.push_action( "eosio.token"_n, "create"_n, "eosio.token"_n, mutable_variant_object()
-              ("issuer",       "eosio" )
+   auto cr = c.push_action( "gax.token"_n, "create"_n, "gax.token"_n, mutable_variant_object()
+              ("issuer",       "gax" )
               ("maximum_supply", core_from_string("10000000.0000"))
       );
 
-   cr = c.push_action( "eosio.token"_n, "issue"_n, config::system_account_name, mutable_variant_object()
-              ("to",       "eosio" )
+   cr = c.push_action( "gax.token"_n, "issue"_n, config::system_account_name, mutable_variant_object()
+              ("to",       "gax" )
               ("quantity", core_from_string("100.0000"))
               ("memo", "")
       );
 
-   cr = c.push_action( "eosio.token"_n, "transfer"_n, config::system_account_name, mutable_variant_object()
-              ("from",     "eosio")
+   cr = c.push_action( "gax.token"_n, "transfer"_n, config::system_account_name, mutable_variant_object()
+              ("from",     "gax")
               ("to",       "dan" )
               ("quantity", core_from_string("100.0000"))
               ("memo", "")

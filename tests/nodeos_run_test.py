@@ -66,9 +66,9 @@ try:
         cluster.cleanup()
         Print("Stand up cluster")
 
-        abs_path = os.path.abspath(os.getcwd() + '/unittests/contracts/eosio.token/eosio.token.abi')
-        traceNodeosArgs=" --http-max-response-time-ms 990000 --trace-rpc-abi eosio.token=" + abs_path
-        specificNodeosInstances={0: "bin/nodeos"}
+        abs_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.token/gax.token.abi')
+        traceNodeosArgs=" --http-max-response-time-ms 990000 --trace-rpc-abi gax.token=" + abs_path
+        specificNodeosInstances={0: "bin/gaxnod"}
         if cluster.launch(prodCount=prodCount, onlyBios=onlyBios, dontBootstrap=dontBootstrap, extraNodeosArgs=traceNodeosArgs, specificNodeosInstances=specificNodeosInstances) is False:
             cmdError("launcher")
             errorExit("Failed to stand up eos cluster.")
@@ -312,9 +312,9 @@ try:
     if hashNum != 0:
         errorExit("FAILURE - get code currency1111 failed", raw=True)
 
-    contractDir="unittests/contracts/eosio.token"
-    wasmFile="eosio.token.wasm"
-    abiFile="eosio.token.abi"
+    contractDir="unittests/contracts/gax.token"
+    wasmFile="gax.token.wasm"
+    abiFile="gax.token.abi"
     Print("Publish contract")
     trans=node.publishContract(currencyAccount, contractDir, wasmFile, abiFile, waitForTransBlock=True)
     if trans is None:

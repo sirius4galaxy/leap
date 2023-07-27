@@ -156,7 +156,7 @@ std::string clean_output( std::string str ) {
 }
 
 string default_url = "http://127.0.0.1:8888";
-string default_wallet_url = "unix://" + (determine_home_directory() / "eosio-wallet" / (string(key_store_executable_name) + ".sock")).string();
+string default_wallet_url = "unix://" + (determine_home_directory() / "gax-wallet" / (string(key_store_executable_name) + ".sock")).string();
 string wallet_url; //to be set to default_wallet_url in main
 std::map<name, std::string>  abi_files_override;
 
@@ -913,7 +913,7 @@ asset to_asset( account_name code, const string& s ) {
 }
 
 inline asset to_asset( const string& s ) {
-   return to_asset( "eosio.token"_n, s );
+   return to_asset( "gax.token"_n, s );
 }
 
 struct set_account_permission_subcommand {
@@ -2371,8 +2371,8 @@ protocol_features_t get_supported_protocol_features() {
 
 struct activate_subcommand {
    string feature_name_str;
-   std::string account_str = "eosio";
-   std::string permission_str = "eosio";
+   std::string account_str = "gax";
+   std::string permission_str = "gax";
 
    activate_subcommand(CLI::App* actionRoot) {
       auto activate = actionRoot->add_subcommand("activate", localized("Activate protocol feature by name"));
@@ -2501,7 +2501,7 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
       }
 
       // print linked actions
-      std::cout << indent << "eosio.any: " << std::endl;
+      std::cout << indent << "gax.any: " << std::endl;
       for (const auto& it : res.eosio_any_linked_actions) {
          auto action_value = it.action ? it.action->to_string() : std::string("*");
          std::cout << indent << indent << it.account << "::" << action_value << std::endl;
@@ -3596,7 +3596,7 @@ int main( int argc, char** argv ) {
    auto setActionPermission = set_action_permission_subcommand(setAction);
 
    // Transfer subcommand
-   string con = "eosio.token";
+   string con = "gax.token";
    string sender;
    string recipient;
    string amount;
@@ -4066,7 +4066,7 @@ int main( int argc, char** argv ) {
          ("requested", requested_perm_var)
          ("trx", trx_var);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "propose"_n, variant_to_bin( "eosio.msig"_n, "propose"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, "gax.msig"_n, "propose"_n, variant_to_bin( "gax.msig"_n, "propose"_n, args ) }}, signing_keys_opt.get_keys());
    });
 
    //multisig propose transaction
@@ -4099,7 +4099,7 @@ int main( int argc, char** argv ) {
          ("requested", requested_perm_var)
          ("trx", trx_var);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "propose"_n, variant_to_bin( "eosio.msig"_n, "propose"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, "gax.msig"_n, "propose"_n, variant_to_bin( "gax.msig"_n, "propose"_n, args ) }}, signing_keys_opt.get_keys());
    });
 
 
@@ -4112,7 +4112,7 @@ int main( int argc, char** argv ) {
 
    review->callback([&] {
       const auto result1 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                 ("code", "eosio.msig")
+                                 ("code", "gax.msig")
                                  ("scope", proposer)
                                  ("table", "proposal")
                                  ("table_key", "")
@@ -4148,7 +4148,7 @@ int main( int argc, char** argv ) {
 
          try {
             const auto& result2 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                       ("code", "eosio.msig")
+                                       ("code", "gax.msig")
                                        ("scope", proposer)
                                        ("table", "approvals2")
                                        ("table_key", "")
@@ -4178,7 +4178,7 @@ int main( int argc, char** argv ) {
             }
          } else {
             const auto result3 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                       ("code", "eosio.msig")
+                                       ("code", "gax.msig")
                                        ("scope", proposer)
                                        ("table", "approvals")
                                        ("table_key", "")
@@ -4211,8 +4211,8 @@ int main( int argc, char** argv ) {
          if( new_multisig ) {
             for( auto& a : provided_approvers ) {
                const auto result4 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                          ("code", "eosio.msig")
-                                          ("scope", "eosio.msig")
+                                          ("code", "gax.msig")
+                                          ("scope", "gax.msig")
                                           ("table", "invals")
                                           ("table_key", "")
                                           ("lower_bound", a.first.to_uint64_t())
@@ -4314,7 +4314,7 @@ int main( int argc, char** argv ) {
       }
 
       auto accountPermissions = get_account_permissions(tx_permission, {name(proposer), config::active_name});
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, name(action), variant_to_bin( "eosio.msig"_n, name(action), args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, "gax.msig"_n, name(action), variant_to_bin( "gax.msig"_n, name(action), args ) }}, signing_keys_opt.get_keys());
    };
 
    // multisig approve
@@ -4344,7 +4344,7 @@ int main( int argc, char** argv ) {
          ("account", invalidator);
 
       auto accountPermissions = get_account_permissions(tx_permission, {name(invalidator), config::active_name});
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "invalidate"_n, variant_to_bin( "eosio.msig"_n, "invalidate"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, "gax.msig"_n, "invalidate"_n, variant_to_bin( "gax.msig"_n, "invalidate"_n, args ) }}, signing_keys_opt.get_keys());
    });
 
    // multisig cancel
@@ -4371,7 +4371,7 @@ int main( int argc, char** argv ) {
          ("proposal_name", proposal_name)
          ("canceler", canceler);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "cancel"_n, variant_to_bin( "eosio.msig"_n, "cancel"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, "gax.msig"_n, "cancel"_n, variant_to_bin( "gax.msig"_n, "cancel"_n, args ) }}, signing_keys_opt.get_keys());
       }
    );
 
@@ -4400,7 +4400,7 @@ int main( int argc, char** argv ) {
          ("proposal_name", proposal_name)
          ("executer", executer);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "exec"_n, variant_to_bin( "eosio.msig"_n, "exec"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, "gax.msig"_n, "exec"_n, variant_to_bin( "gax.msig"_n, "exec"_n, args ) }}, signing_keys_opt.get_keys());
       }
    );
 
@@ -4409,7 +4409,7 @@ int main( int argc, char** argv ) {
    wrap->require_subcommand();
 
    // wrap exec
-   string wrap_con = "eosio.wrap";
+   string wrap_con = "gax.wrap";
    executer = "";
    string trx_to_exec;
    auto wrap_exec = wrap->add_subcommand("exec", localized("Execute a transaction while bypassing authorization checks"));
@@ -4434,7 +4434,7 @@ int main( int argc, char** argv ) {
    });
 
    // system subcommand
-   auto system = app.add_subcommand("system", localized("Send eosio.system contract action to the blockchain."));
+   auto system = app.add_subcommand("system", localized("Send gax.system contract action to the blockchain."));
    system->require_subcommand();
 
    auto createAccountSystem = create_account_subcommand( system, false /*simple*/ );

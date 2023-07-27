@@ -9,7 +9,7 @@ from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletM
 #
 # Load nested container contracts for multi-index table
 # Verifies nested container for table below
-# 
+#
 ###############################################################
 #         |  set  |  vector |  optional | map | pair | tuple |
 #---------------------------------------------------------------
@@ -111,7 +111,7 @@ try:
     node = cluster.getNode()
 
     Print("Setting account privilege")
-    node.pushMessage(cluster.eosioAccount.name, 'setpriv', '["nestcontnmi", 1]', '-p eosio@active')
+    node.pushMessage(cluster.eosioAccount.name, 'setpriv', '["nestcontnmi", 1]', '-p gax@active')
 
     Print("Loading nested container contract")
     node.publishContract(MIacct, contractDir, wasmFile, abiFile, waitForTransBlock=True)
@@ -134,7 +134,7 @@ try:
     Print("Test action for set< tuple< uint16_t, uint16_t >>")
     create_action('setstt', '["alice", [[1,2],[36,46], [56,66]]]', 'nestcontnmi', 'alice')
 
-    
+
     Print("Test action for vector< set< uint16_t >>")
     create_action('setvst', '["alice", [[10, 10], [3], [400, 500, 600]]]', 'nestcontnmi', 'alice')
 
@@ -247,7 +247,7 @@ try:
     Print("Test action for pair<uint16_t, vector<optional<uint16_t>>>")
     create_action('setpvo', '["alice",{"first": 183, "second":[100, null, 200]}]', 'nestcontnmi', 'alice')
 
-    cmd="get table %s %s people2" % (MIacct.name, MIacct.name)   
+    cmd="get table %s %s people2" % (MIacct.name, MIacct.name)
 
     transaction = node.processCleosCmd(cmd, cmd, False, returnType=ReturnType.raw)
     transaction_json = json.loads(transaction)
@@ -344,7 +344,7 @@ try:
 
     assert "{'key': 6, 'value': [{'key': 20, 'value': 300}, {'key': 21, 'value': 301}]}" \
         == str(transaction_json['rows'][0]['pm']), 'Content of multi-index table pair< map< uint16_t >> is not correct'
-        
+
     assert "{'key': 30, 'value': {'key': 301, 'value': 302}}" == str(transaction_json['rows'][0]['pp']),\
          'Content of multi-index table pair< pair< uint16_t >> is not correct'
 
@@ -366,7 +366,7 @@ try:
 
     assert "{'field_0': 126, 'field_1': [{'key': 10, 'value': 100}, {'key': 11, 'value': 101}], 'field_2': [{'key': 80, 'value': 800}, {'key': 81, 'value': 9009}]}" \
         == str(transaction_json['rows'][0]['tm']), 'Content of multi-index table pair< map< uint16_t, uint16_t >> is not correct'
-        
+
     assert "{'field_0': 127, 'field_1': {'key': 18, 'value': 28}, 'field_2': {'key': 19, 'value': 29}}" == str(transaction_json['rows'][0]['tp']),\
          'Content of multi-index table tuple< pair< uint16_t, uint16_t >> is not correct'
 
@@ -376,13 +376,13 @@ try:
 
     assert "[{'_count': 18, '_strID': 'dumstr'}, None, {'_count': 19, '_strID': 'dumstr'}]" == str(transaction_json['rows'][0]['vos']), \
          "Content of multi-index table vector<optional<mystruct>> is not correct"
-    
+
     assert "{'first': 183, 'second': [100, None, 200]}" == str(transaction_json['rows'][0]['pvo']), \
          "Content of multi-index table pair<uint16_t, vector<optional<uint16_t>>> is not correct"
-        
-    testSuccessful=True            
+
+    testSuccessful=True
     assert testSuccessful
-    
+
 finally:
     TestHelper.shutdown(cluster, walletMgr, testSuccessful, killEosInstances, killWallet)
 

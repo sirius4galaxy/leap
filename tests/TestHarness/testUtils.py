@@ -77,7 +77,7 @@ class Utils:
     PID = os.getpid()
     DataPath= f"{TestLogRoot}/{DataRoot}{PID}"
     DataDir= f"{DataPath}/"
-    ConfigDir=f"{str(Path.cwd().resolve())}/etc/eosio/"
+    ConfigDir=f"{str(Path.cwd().resolve())}/etc/gax/"
 
     TimeFmt='%Y-%m-%dT%H:%M:%S.%f'
 

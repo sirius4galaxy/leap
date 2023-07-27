@@ -164,7 +164,7 @@ public:
     }
 
     asset get_balance( const account_name& act ) {
-         return get_currency_balance("eosio.token"_n, symbol(CORE_SYMBOL), act);
+         return get_currency_balance("gax.token"_n, symbol(CORE_SYMBOL), act);
     }
 
     void set_code_abi(const account_name& account, const vector<uint8_t>& wasm, const char* abi, const private_key_type* signer = nullptr) {
@@ -189,39 +189,39 @@ BOOST_AUTO_TEST_SUITE(bootseq_tests)
 BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
     try {
 
-        // Create eosio.msig and eosio.token
-        create_accounts({"eosio.msig"_n, "eosio.token"_n, "eosio.ram"_n, "eosio.ramfee"_n, "eosio.stake"_n, "eosio.vpay"_n, "eosio.bpay"_n, "eosio.saving"_n, "eosio.rex"_n });
+        // Create gax.msig and gax.token
+        create_accounts({"gax.msig"_n, "gax.token"_n, "gax.ram"_n, "gax.ramfee"_n, "gax.stake"_n, "gax.vpay"_n, "gax.bpay"_n, "gax.saving"_n, "gax.rex"_n });
         // Set code for the following accounts:
-        //  - eosio (code: eosio.bios) (already set by tester constructor)
-        //  - eosio.msig (code: eosio.msig)
-        //  - eosio.token (code: eosio.token)
-        // set_code_abi("eosio.msig"_n, contracts::eosio_msig_wasm(), contracts::eosio_msig_abi().data());//, &eosio_active_pk);
-        // set_code_abi("eosio.token"_n, contracts::eosio_token_wasm(), contracts::eosio_token_abi().data()); //, &eosio_active_pk);
+        //  - eosio (code: gax.bios) (already set by tester constructor)
+        //  - gax.msig (code: gax.msig)
+        //  - gax.token (code: gax.token)
+        // set_code_abi("gax.msig"_n, contracts::eosio_msig_wasm(), contracts::eosio_msig_abi().data());//, &eosio_active_pk);
+        // set_code_abi("gax.token"_n, contracts::eosio_token_wasm(), contracts::eosio_token_abi().data()); //, &eosio_active_pk);
 
-        set_code_abi("eosio.msig"_n,
+        set_code_abi("gax.msig"_n,
                      test_contracts::eosio_msig_wasm(),
                      test_contracts::eosio_msig_abi().data());//, &eosio_active_pk);
-        set_code_abi("eosio.token"_n,
+        set_code_abi("gax.token"_n,
                      test_contracts::eosio_token_wasm(),
                      test_contracts::eosio_token_abi().data()); //, &eosio_active_pk);
 
-        // Set privileged for eosio.msig and eosio.token
-        set_privileged("eosio.msig"_n);
-        set_privileged("eosio.token"_n);
+        // Set privileged for gax.msig and gax.token
+        set_privileged("gax.msig"_n);
+        set_privileged("gax.token"_n);
 
-        // Verify eosio.msig and eosio.token is privileged
-        const auto& eosio_msig_acc = get<account_metadata_object, by_name>("eosio.msig"_n);
+        // Verify gax.msig and gax.token is privileged
+        const auto& eosio_msig_acc = get<account_metadata_object, by_name>("gax.msig"_n);
         BOOST_TEST(eosio_msig_acc.is_privileged() == true);
-        const auto& eosio_token_acc = get<account_metadata_object, by_name>("eosio.token"_n);
+        const auto& eosio_token_acc = get<account_metadata_object, by_name>("gax.token"_n);
         BOOST_TEST(eosio_token_acc.is_privileged() == true);
 
 
-        // Create SYS tokens in eosio.token, set its manager as eosio
+        // Create SYS tokens in gax.token, set its manager as eosio
         auto max_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
         auto initial_supply = core_from_string("1000000000.0000"); /// 1x larger than 1B initial tokens
-        create_currency("eosio.token"_n, config::system_account_name, max_supply);
-        // Issue the genesis supply of 1 billion SYS tokens to eosio.system
-        issue("eosio.token"_n, config::system_account_name, config::system_account_name, initial_supply);
+        create_currency("gax.token"_n, config::system_account_name, max_supply);
+        // Issue the genesis supply of 1 billion SYS tokens to gax.system
+        issue("gax.token"_n, config::system_account_name, config::system_account_name, initial_supply);
 
         auto actual = get_balance(config::system_account_name);
         BOOST_REQUIRE_EQUAL(initial_supply, actual);
@@ -243,7 +243,7 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
            auto r = buyram(config::system_account_name, a.aname, asset(ram));
            BOOST_REQUIRE( !r->except_ptr );
 
-           r = delegate_bandwidth("eosio.stake"_n, a.aname, asset(net), asset(cpu));
+           r = delegate_bandwidth("gax.stake"_n, a.aname, asset(net), asset(cpu));
            BOOST_REQUIRE( !r->except_ptr );
         }
 
@@ -283,7 +283,7 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         produce_blocks_for_n_rounds(2); // 2 rounds since new producer schedule is set when the first block of next round is irreversible
         auto active_schedule = control->head_block_state()->active_schedule;
         BOOST_TEST(active_schedule.producers.size() == 1u);
-        BOOST_TEST(active_schedule.producers.front().producer_name == name("eosio"));
+        BOOST_TEST(active_schedule.producers.front().producer_name == name("gax"));
 
         // Spend some time so the producer pay pool is filled by the inflation rate
         produce_min_num_of_blocks_to_spend_time_wo_inactive_prod(fc::seconds(30 * 24 * 3600)); // 30 days

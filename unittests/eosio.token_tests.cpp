@@ -25,15 +25,15 @@ public:
    eosio_token_tester() {
       produce_blocks( 2 );
 
-      create_accounts( { "alice"_n, "bob"_n, "carol"_n, "eosio.token"_n } );
+      create_accounts( { "alice"_n, "bob"_n, "carol"_n, "gax.token"_n } );
       produce_blocks( 2 );
 
-      set_code( "eosio.token"_n, test_contracts::eosio_token_wasm() );
-      set_abi( "eosio.token"_n, test_contracts::eosio_token_abi().data() );
+      set_code( "gax.token"_n, test_contracts::eosio_token_wasm() );
+      set_abi( "gax.token"_n, test_contracts::eosio_token_abi().data() );
 
       produce_blocks();
 
-      const auto& accnt = control->db().get<account_object,by_name>( "eosio.token"_n );
+      const auto& accnt = control->db().get<account_object,by_name>( "gax.token"_n );
       abi_def abi;
       BOOST_REQUIRE_EQUAL(abi_serializer::to_abi(accnt.abi, abi), true);
       abi_ser.set_abi(std::move(abi), abi_serializer::create_yield_function( abi_serializer_max_time ));
@@ -43,7 +43,7 @@ public:
       string action_type_name = abi_ser.get_action_type(name);
 
       action act;
-      act.account = "eosio.token"_n;
+      act.account = "gax.token"_n;
       act.name    = name;
       act.data    = abi_ser.variant_to_binary( action_type_name, data, abi_serializer::create_yield_function( abi_serializer_max_time ) );
 
@@ -54,7 +54,7 @@ public:
    {
       auto symb = eosio::chain::symbol::from_string(symbolname);
       auto symbol_code = symb.to_symbol_code().value;
-      vector<char> data = get_row_by_account( "eosio.token"_n, name(symbol_code), "stat"_n, name(symbol_code) );
+      vector<char> data = get_row_by_account( "gax.token"_n, name(symbol_code), "stat"_n, name(symbol_code) );
       return data.empty() ? fc::variant() : abi_ser.binary_to_variant( "currency_stats", data, abi_serializer::create_yield_function( abi_serializer_max_time ) );
    }
 
@@ -62,14 +62,14 @@ public:
    {
       auto symb = eosio::chain::symbol::from_string(symbolname);
       auto symbol_code = symb.to_symbol_code().value;
-      vector<char> data = get_row_by_account( "eosio.token"_n, acc, "accounts"_n, name(symbol_code) );
+      vector<char> data = get_row_by_account( "gax.token"_n, acc, "accounts"_n, name(symbol_code) );
       return data.empty() ? fc::variant() : abi_ser.binary_to_variant( "account", data, abi_serializer::create_yield_function( abi_serializer_max_time ) );
    }
 
    action_result create( account_name issuer,
                 asset        maximum_supply ) {
 
-      return push_action( "eosio.token"_n, "create"_n, mvo()
+      return push_action( "gax.token"_n, "create"_n, mvo()
            ( "issuer", issuer)
            ( "maximum_supply", maximum_supply)
       );

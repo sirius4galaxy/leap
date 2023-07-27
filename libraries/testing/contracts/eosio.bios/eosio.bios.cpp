@@ -1,4 +1,4 @@
-#include "eosio.bios.hpp"
+#include "gax.bios.hpp"
 
 namespace eosiobios {
 
