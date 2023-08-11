@@ -1,4 +1,5 @@
 #include <eosio/chain/global_property_object.hpp>
+#include <eosio/chain/database_header_object.hpp>
 #include <eosio/testing/tester.hpp>
 
 #include <fc/crypto/digest.hpp>
@@ -12,6 +13,7 @@
 #endif
 
 using namespace eosio::chain;
+using namespace chainbase;
 using namespace eosio::testing;
 namespace bfs = boost::filesystem;
 
@@ -78,6 +80,27 @@ BOOST_AUTO_TEST_SUITE(database_tests)
          // Check the latest head block match
          BOOST_TEST(test.control->fetch_block_by_number(test.control->head_block_num())->calculate_id() ==
                     test.control->head_block_id());
+      } FC_LOG_AND_RETHROW()
+   }
+
+   // Simple tests of undo infrastructure
+   BOOST_AUTO_TEST_CASE(db_read_write) {
+      try {
+         fc::temp_directory tempdir;
+         auto state_dir = tempdir.path() / "state";
+         wdump((state_dir));
+         uint64_t state_size = 1024 * 1024; // 1 MB
+         auto db_map_mode = chainbase::pinnable_mapped_file::map_mode::mapped;
+
+         database db( state_dir, database::read_write, state_size, false, db_map_mode );
+         db.add_index<database_header_multi_index>();
+         db.set_revision( 1 );
+         uint32_t old_version = 0;
+         db.create<database_header_object>([&](auto& header){
+            old_version = header.version;
+            header.version++;
+         });
+         db.commit(2);
       } FC_LOG_AND_RETHROW()
    }
 
