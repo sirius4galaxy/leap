@@ -1,4 +1,5 @@
 #include <eosio/contract.hpp>
+#include <eosio/eosio.hpp>
 
 extern "C" __attribute__((eosio_wasm_import)) void set_wasm_parameters_packed(const void*, std::size_t);
 #if defined(USE_EOSIO_CDT_1_7_X) || defined(USE_EOSIO_CDT_1_8_X)
@@ -33,3 +34,4 @@ class [[eosio::contract]] wasm_config_bios : public eosio::contract {
       set_wasm_parameters_packed(&config, sizeof(config));
    }
 };
+EOSIO_DISPATCH(wasm_config_bios, (setwparams))
