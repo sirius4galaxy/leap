@@ -180,11 +180,13 @@ BOOST_AUTO_TEST_SUITE(database_tests)
             obj.name = "acct2"_n;
             obj.recv_sequence = 0;
          });
+         BOOST_REQUIRE_EQUAL( idx.size(), 2 );
 
          const auto& acct3 = db.create<account_metadata_object>([&](auto& obj){
             obj.name = "acct3"_n;
             obj.recv_sequence = 0;
          });
+         BOOST_REQUIRE_EQUAL( idx.size(), 3 );
 
          db.modify( acct2, [&]( auto& obj ) {
             obj.recv_sequence++;
@@ -198,8 +200,10 @@ BOOST_AUTO_TEST_SUITE(database_tests)
             obj.name = "acct4"_n;
             obj.recv_sequence = 0;
          });
+         BOOST_REQUIRE_EQUAL( idx.size(), 4 );
 
          db.remove( acct2 );
+         BOOST_REQUIRE_EQUAL( idx.size(), 3 );
 
          db.modify( acct3, [&]( auto& obj ) {
             obj.recv_sequence++;
@@ -209,6 +213,7 @@ BOOST_AUTO_TEST_SUITE(database_tests)
             obj.name = "acct2"_n;
             obj.recv_sequence = 3;
          });
+         BOOST_REQUIRE_EQUAL( idx.size(), 4 );
          db.modify( acct4, [&]( auto& obj ) {
             obj.recv_sequence++;
          });
@@ -216,6 +221,7 @@ BOOST_AUTO_TEST_SUITE(database_tests)
          db.remove( acct1 );
          db.remove( acct3 );
          db.remove( acct4 );
+         BOOST_REQUIRE_EQUAL( idx.size(), 1 );
 
          print_last_undo(idx);
 
