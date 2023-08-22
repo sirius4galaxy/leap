@@ -101,6 +101,7 @@ public:
    [[eosio::action]] void maintest(){
 
       //make sure no throw for zero parameters provided
+      
       params_object(0_ui).set();
       ASSERT_EQ(params_object(0_ui).get(),
                 params_object(0_ui));
@@ -209,6 +210,7 @@ public:
       params_object(1_ui)(17_ui)(512_32).set();
       ASSERT_EQ(params_object(1_ui)(17_ui).get(), 
                 params_object(1_ui)(17_ui)(512_32));
+      
    }
 
    [[eosio::action]] void setthrow1(){
@@ -261,4 +263,8 @@ public:
       ASSERT_EQ(params_object(1_ui)(17_ui).get(), 
                 params_object(1_ui)(17_ui)(1024_32));
    }
+
+   [[eosio::action]]
+   void setcode( eosio::name account, uint8_t vmtype, uint8_t vmversion, const std::vector<char>& code ) {}
+
 };

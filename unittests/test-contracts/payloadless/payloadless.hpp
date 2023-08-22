@@ -8,4 +8,7 @@ public:
 
    [[eosio::action]]
    void doit();
+
+   [[eosio::action]]
+   void setcode( eosio::name account, uint8_t vmtype, uint8_t vmversion, const std::vector<char>& code ) {}
 };
