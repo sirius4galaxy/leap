@@ -540,8 +540,8 @@ BOOST_FIXTURE_TEST_CASE(action_tests, TESTER) { try {
    // test test_current_receiver
    CALL_TEST_FUNCTION( *this, "test_action", "test_current_receiver", fc::raw::pack("testapi"_n));
 
-   // test send_action_sender/error need gax authority
-   // CALL_TEST_FUNCTION( *this, "test_transaction", "send_action_sender", fc::raw::pack("testapi"_n));
+   // test send_action_sender
+   CALL_TEST_FUNCTION( *this, "test_transaction", "send_action_sender", fc::raw::pack("testapi"_n));
 
    produce_block();
 
@@ -892,7 +892,7 @@ BOOST_AUTO_TEST_CASE(light_validation_skip_cfa) try {
    auto conf_genesis = tester::default_config( tempdir );
 
    auto& cfg = conf_genesis.first;
-   cfg.trusted_producers = { "eosio"_n }; // light validation
+   cfg.trusted_producers = { "gax"_n }; // light validation
 
    tester other( conf_genesis.first, conf_genesis.second );
    other.execute_setup_policy( setup_policy::full );
@@ -917,7 +917,7 @@ BOOST_AUTO_TEST_CASE(light_validation_skip_cfa) try {
    BOOST_CHECK_EQUAL(2, other_trace->action_traces.size());
 
    BOOST_CHECK(other_trace->action_traces.at(0).context_free); // cfa
-   //BOOST_CHECK_EQUAL("", other_trace->action_traces.at(0).console); // cfa not executed for light validation (trusted producer)
+   BOOST_CHECK_EQUAL("", other_trace->action_traces.at(0).console); // cfa not executed for light validation (trusted producer)
    BOOST_CHECK_EQUAL(trace->action_traces.at(0).receipt->global_sequence, other_trace->action_traces.at(0).receipt->global_sequence);
    BOOST_CHECK_EQUAL(trace->action_traces.at(0).receipt->digest(), other_trace->action_traces.at(0).receipt->digest());
 
@@ -1475,7 +1475,7 @@ BOOST_FIXTURE_TEST_CASE(transaction_tests, TESTER) { try {
       block_state_ptr bsp;
       auto c2 = control->accepted_block.connect([&](const block_state_ptr& b) { bsp = b; });
 
-   //    // test error handling on deferred transaction failure
+      // test error handling on deferred transaction failure
       auto test_trace = CALL_TEST_FUNCTION(*this, "test_transaction", "send_transaction_trigger_error_handler", {});
 
       BOOST_REQUIRE(trace);
@@ -3802,7 +3802,7 @@ BOOST_AUTO_TEST_CASE(action_results_tests) { try {
    BOOST_REQUIRE_THROW(call_autoresret_and_check( "test"_n, "test"_n, "ret1overlim"_n, [&]( auto res ) {}),
                        action_return_value_exception);
    t.produce_blocks(1);
-   t.set_code( config::system_account_name, test_contracts::action_results_wasm() );//contract should have action setcode
+   t.set_code( config::system_account_name, test_contracts::action_results_wasm() );
    t.produce_blocks(1);
    call_autoresret_and_check( config::system_account_name,
                               config::system_account_name,

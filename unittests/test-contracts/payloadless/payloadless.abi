@@ -7,39 +7,12 @@
             "name": "doit",
             "base": "",
             "fields": []
-        },
-        {
-            "name": "setcode",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                },
-                {
-                    "name": "vmtype",
-                    "type": "uint8"
-                },
-                {
-                    "name": "vmversion",
-                    "type": "uint8"
-                },
-                {
-                    "name": "code",
-                    "type": "bytes"
-                }
-            ]
         }
     ],
     "actions": [
         {
             "name": "doit",
             "type": "doit",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "setcode",
-            "type": "setcode",
             "ricardian_contract": ""
         }
     ],

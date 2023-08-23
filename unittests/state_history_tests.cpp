@@ -528,6 +528,7 @@ BOOST_AUTO_TEST_CASE(test_deltas_resources_history) {
          result_contract_row_table_primary_keys.insert(contract_row.primary_key);
       }
       BOOST_REQUIRE(expected_contract_row_table_names == result_contract_row_table_names);
+      #warning "need to check"
       // BOOST_REQUIRE(expected_contract_row_table_primary_keys == result_contract_row_table_primary_keys);
 
       chain.produce_block();
