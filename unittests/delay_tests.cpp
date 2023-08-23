@@ -2289,11 +2289,11 @@ BOOST_AUTO_TEST_CASE( max_transaction_delay_execute ) { try {
 
    chain.produce_blocks();
    chain.push_action("gax.token"_n, "create"_n, "gax.token"_n, mutable_variant_object()
-           ("issuer", "gax.token" )
+           ("issuer", "tester" )
            ("maximum_supply", "9000000.0000 CUR" )
    );
-   chain.push_action("gax.token"_n, name("issue"), "gax.token"_n, fc::mutable_variant_object()
-           ("to",       "gax.token"_n)
+   chain.push_action("gax.token"_n, name("issue"), "tester"_n, fc::mutable_variant_object()
+           ("to",       "tester")
            ("quantity", "100.0000 CUR")
            ("memo", "for stuff")
    );
@@ -2324,9 +2324,9 @@ BOOST_AUTO_TEST_CASE( max_transaction_delay_execute ) { try {
 
    chain.produce_blocks();
    //should be able to create transaction with delay 60 sec, despite permission delay being 30 days, because max_transaction_delay is 60 sec
-   trace = chain.push_action("gax.token"_n, name("transfer"), "gax.token"_n, fc::mutable_variant_object()
-                           ("from", "gax.token")
-                           ("to", "tester")
+   trace = chain.push_action("gax.token"_n, name("transfer"), "tester"_n, fc::mutable_variant_object()
+                           ("from", "tester")
+                           ("to", "gax.token")
                            ("quantity", "9.0000 CUR")
                            ("memo", "" ), 120, 60);
    BOOST_REQUIRE_EQUAL(transaction_receipt::delayed, trace->receipt->status);
@@ -2344,7 +2344,7 @@ BOOST_AUTO_TEST_CASE( max_transaction_delay_execute ) { try {
 
    //check that the transfer really happened
    auto liquid_balance = get_currency_balance(chain, "tester"_n);
-   //BOOST_REQUIRE_EQUAL(asset::from_string("91.0000 CUR"), liquid_balance);
+   BOOST_REQUIRE_EQUAL(asset::from_string("91.0000 CUR"), liquid_balance);
 
 } FC_LOG_AND_RETHROW() }
 
