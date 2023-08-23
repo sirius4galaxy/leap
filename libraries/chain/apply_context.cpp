@@ -87,7 +87,7 @@ void apply_context::exec_one()
                         && act->name == "setcode"_n
                         && receiver == config::system_account_name )
                      || control.is_builtin_activated( builtin_protocol_feature_t::forward_setcode)
-                  ) /*&& act->name != "onblock"_n*/
+                  )
             ) {
                if( trx_context.enforce_whiteblacklist && control.is_speculative_block() ) {
                   control.check_contract_list( receiver );
