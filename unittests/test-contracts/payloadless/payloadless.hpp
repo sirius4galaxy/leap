@@ -8,4 +8,7 @@ public:
 
    [[eosio::action]]
    void doit();
+
 };
+
+EOSIO_DISPATCH(payloadless, (doit))

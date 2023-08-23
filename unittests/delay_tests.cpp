@@ -2289,10 +2289,10 @@ BOOST_AUTO_TEST_CASE( max_transaction_delay_execute ) { try {
 
    chain.produce_blocks();
    chain.push_action("gax.token"_n, "create"_n, "gax.token"_n, mutable_variant_object()
-           ("issuer", "gax.token" )
+           ("issuer", "tester" )
            ("maximum_supply", "9000000.0000 CUR" )
    );
-   chain.push_action("gax.token"_n, name("issue"), "gax.token"_n, fc::mutable_variant_object()
+   chain.push_action("gax.token"_n, name("issue"), "tester"_n, fc::mutable_variant_object()
            ("to",       "tester")
            ("quantity", "100.0000 CUR")
            ("memo", "for stuff")

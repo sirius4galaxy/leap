@@ -363,7 +363,7 @@ try {
    // Creating account with gax. prefix with privileged account
    chain.create_account(name("gax.test1"));
 
-   // Creating account with gax. prefix with non-privileged account, should fail
+   // Creating account with eosio. prefix with non-privileged account, should fail
    BOOST_CHECK_EXCEPTION(chain.create_account(name("gax.test2"), name("joe")), action_validate_exception,
                          fc_exception_message_is("only privileged accounts can have names that start with 'gax.'"));
 

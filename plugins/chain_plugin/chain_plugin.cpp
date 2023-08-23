@@ -684,18 +684,18 @@ void chain_plugin::plugin_initialize(const variables_map& options) {
          }
       }
 
-      
+
 
       if( options.count( "extract-genesis-json" ) || options.at( "print-genesis-json" ).as<bool>()) {
          std::optional<genesis_state> gs;
-         
+
          gs = block_log::extract_genesis_state( my->blocks_dir, retained_dir );
          EOS_ASSERT( gs,
                      plugin_config_exception,
                      "Block log at '${path}' does not contain a genesis state, it only has the chain-id.",
                      ("path", (my->blocks_dir / "blocks.log").generic_string())
          );
-         
+
 
          if( options.at( "print-genesis-json" ).as<bool>()) {
             ilog( "Genesis JSON:\n${genesis}", ("genesis", json::to_pretty_string( *gs )));
@@ -780,7 +780,7 @@ void chain_plugin::plugin_initialize(const variables_map& options) {
 
          auto chain_context = block_log::extract_chain_context( my->blocks_dir, retained_dir );
          std::optional<genesis_state> block_log_genesis;
-         std::optional<chain_id_type> block_log_chain_id;  
+         std::optional<chain_id_type> block_log_chain_id;
 
          if (chain_context) {
             std::visit(overloaded {
@@ -790,7 +790,7 @@ void chain_plugin::plugin_initialize(const variables_map& options) {
                },
                [&](const chain_id_type& id) {
                   block_log_chain_id = id;
-               } 
+               }
             }, *chain_context);
 
             if( chain_id ) {
@@ -2629,7 +2629,7 @@ chain::symbol read_only::extract_core_symbol()const {
 
    // The following code makes assumptions about the contract deployed on eosio account (i.e. the system contract) and how it stores its data.
    const auto& d = db.db();
-   const auto* t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( "eosio"_n, "eosio"_n, "rammarket"_n ));
+   const auto* t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple( "gax"_n, "gax"_n, "rammarket"_n ));
    if( t_id != nullptr ) {
       const auto &idx = d.get_index<key_value_index, by_scope_primary>();
       auto it = idx.find(boost::make_tuple( t_id->id, eosio::chain::string_to_symbol_c(4,"RAMCORE") ));

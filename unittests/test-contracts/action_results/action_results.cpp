@@ -65,6 +65,8 @@ class [[eosio::contract]] action_results : public contract {
          //trying to set limit too large
          set_parameters_packed(buffer, ds.tellp());
       }
-
+      
+      [[eosio::action]]
+      void setcode( eosio::name account, uint8_t vmtype, uint8_t vmversion, const std::vector<char>& code ) {}
   private:
 };
