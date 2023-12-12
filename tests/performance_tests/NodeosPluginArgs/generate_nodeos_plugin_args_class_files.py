@@ -4,6 +4,7 @@ import re
 import subprocess
 
 """
+TODO: modify node name
 The purpose of this script is to attempt to generate *PluginArgs.py files, containing respective dataclass objects,
 to encapsulate the configurations options available for each plugin as currently documented in gaxnod's --help command.
 

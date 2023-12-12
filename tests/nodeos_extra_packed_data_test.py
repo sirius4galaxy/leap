@@ -3,7 +3,7 @@
 import json
 import copy
 
-from TestHarness import Cluster, TestHelper, Utils, WalletMgr, CORE_SYMBOL
+from TestHarness import Cluster, TestHelper, Utils, WalletMgr, CORE_SYMBOL, system_config
 from TestHarness.Cluster import PFSetupPolicy
 from TestHarness.TestHelper import AppArgs
 
@@ -110,7 +110,7 @@ try:
     Print("Creating wallet \"%s\"" % (testWalletName))
     walletAccounts=copy.deepcopy(cluster.defProducerAccounts)
     if dontLaunch:
-        del walletAccounts["gax"]
+        del walletAccounts[f"{system_config.SYSTEM_ACCOUNT_NAME}"]
     testWallet = walletMgr.create(testWalletName, walletAccounts.values())
 
     Print("Wallet \"%s\" password=%s." % (testWalletName, testWallet.password.encode("utf-8")))

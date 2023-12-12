@@ -4,8 +4,10 @@
 #include <eosio/trace_api/test_common.hpp>
 #include <eosio/trace_api/store_provider.hpp>
 #include <boost/filesystem.hpp>
+#include <eosio/chain/system_config.hpp>
 
 using namespace eosio;
+using namespace eosio::chain;
 using namespace eosio::trace_api;
 using namespace eosio::trace_api::test_common;
 namespace bfs = boost::filesystem;
@@ -101,19 +103,19 @@ namespace {
                   {
                      {
                         0,
-                        "gax.token"_n, "gax.token"_n, "transfer"_n,
+                        SYSTEM_TOKEN_ACCOUNT_NAME, SYSTEM_TOKEN_ACCOUNT_NAME, "transfer"_n,
                         {{ "alice"_n, "active"_n }},
                         make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                      },
                      {
                         1,
-                        "alice"_n, "gax.token"_n, "transfer"_n,
+                        "alice"_n, SYSTEM_TOKEN_ACCOUNT_NAME, "transfer"_n,
                         {{ "alice"_n, "active"_n }},
                         make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                      },
                      {
                         2,
-                        "bob"_n, "gax.token"_n, "transfer"_n,
+                        "bob"_n, SYSTEM_TOKEN_ACCOUNT_NAME, "transfer"_n,
                         {{ "alice"_n, "active"_n }},
                         make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                      }
@@ -166,19 +168,19 @@ namespace {
                {
                   {
                      0,
-                     "gax.token"_n, "gax.token"_n, "transfer"_n,
+                     SYSTEM_TOKEN_ACCOUNT_NAME, SYSTEM_TOKEN_ACCOUNT_NAME, "transfer"_n,
                      {{ "alice"_n, "active"_n }},
                      make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                   },
                   {
                      1,
-                     "alice"_n, "gax.token"_n, "transfer"_n,
+                     "alice"_n, SYSTEM_TOKEN_ACCOUNT_NAME, "transfer"_n,
                      {{ "alice"_n, "active"_n }},
                      make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                   },
                   {
                      2,
-                     "bob"_n, "gax.token"_n, "transfer"_n,
+                     "bob"_n, SYSTEM_TOKEN_ACCOUNT_NAME, "transfer"_n,
                      {{ "alice"_n, "active"_n }},
                      make_transfer_data( "alice"_n, "bob"_n, "0.0001 SYS"_t, "Memo!" )
                   }

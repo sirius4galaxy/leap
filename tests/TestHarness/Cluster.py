@@ -13,7 +13,7 @@ import random
 import json
 import socket
 from pathlib import Path
-
+from . import system_config
 from .core_symbol import CORE_SYMBOL
 from .testUtils import Account
 from .testUtils import BlockLogAction
@@ -120,7 +120,7 @@ class Cluster(object):
         self.defProducerAccounts={}
         self.defproduceraAccount=self.defProducerAccounts["defproducera"]= Account("defproducera")
         self.defproducerbAccount=self.defProducerAccounts["defproducerb"]= Account("defproducerb")
-        self.eosioAccount=self.defProducerAccounts["gax"]= Account("gax")
+        self.eosioAccount=self.defProducerAccounts[system_config.SYSTEM_ACCOUNT_NAME]= Account(system_config.SYSTEM_ACCOUNT_NAME)
 
         self.defproduceraAccount.ownerPrivateKey=defproduceraPrvtKey
         self.defproduceraAccount.activePrivateKey=defproduceraPrvtKey
@@ -553,7 +553,7 @@ class Cluster(object):
             initAccountKeys(account, producerKeys[name])
             self.defProducerAccounts[name] = account
 
-        self.eosioAccount=self.defProducerAccounts["gax"]
+        self.eosioAccount=self.defProducerAccounts[system_config.SYSTEM_ACCOUNT_NAME]
         self.defproduceraAccount=self.defProducerAccounts["defproducera"]
         self.defproducerbAccount=self.defProducerAccounts["defproducerb"]
 
@@ -1077,7 +1077,7 @@ class Cluster(object):
 
         ignWallet=self.walletMgr.create("ignition")
 
-        eosioName="gax"
+        eosioName=system_config.SYSTEM_ACCOUNT_NAME
         eosioKeys=producerKeys[eosioName]
         eosioAccount=Account(eosioName)
         eosioAccount.ownerPrivateKey=eosioKeys["private"]
@@ -1089,7 +1089,7 @@ class Cluster(object):
             Utils.Print("ERROR: Failed to import %s account keys into ignition wallet." % (eosioName))
             return None
 
-        contract="gax.bios"
+        contract=system_config.SYSTEM_BIOS_ACCOUNT_NAME
         contractDir= str(self.libTestingContractsPath / contract)
         if PFSetupPolicy.hasPreactivateFeature(pfSetupPolicy):
             contractDir=str(self.libTestingContractsPath / "old_versions" / "v1.7.0-develop-preactivate_feature" / contract)
@@ -1140,8 +1140,8 @@ class Cluster(object):
                     setProdsStr=f.read()
 
                     Utils.Print("Setting producers.")
-                    opts="--permission gax@active"
-                    myTrans=biosNode.pushMessage("gax", "setprods", setProdsStr, opts)
+                    opts="--permission "+system_config.SYSTEM_ACCOUNT_NAME+"@active"
+                    myTrans=biosNode.pushMessage(system_config.SYSTEM_ACCOUNT_NAME, "setprods", setProdsStr, opts)
                     if myTrans is None or not myTrans[0]:
                         Utils.Print("ERROR: Failed to set producers.")
                         return None
@@ -1165,9 +1165,9 @@ class Cluster(object):
                 setProdsStr += ' ] }'
                 if Utils.Debug: Utils.Print("setprods: %s" % (setProdsStr))
                 Utils.Print("Setting producers: %s." % (", ".join(prodNames)))
-                opts="--permission gax@active"
+                opts="--permission "+system_config.SYSTEM_ACCOUNT_NAME+"@active"
                 # pylint: disable=redefined-variable-type
-                trans=biosNode.pushMessage("gax", "setprods", setProdsStr, opts)
+                trans=biosNode.pushMessage(system_config.SYSTEM_ACCOUNT_NAME, "setprods", setProdsStr, opts)
                 if trans is None or not trans[0]:
                     Utils.Print("ERROR: Failed to set producer %s." % (keys["name"]))
                     return None
@@ -1179,7 +1179,7 @@ class Cluster(object):
                 return None
 
             # wait for block production handover (essentially a block produced by anyone but eosio).
-            lam = lambda: biosNode.getInfo(exitOnError=True)["head_block_producer"] != "gax"
+            lam = lambda: biosNode.getInfo(exitOnError=True)["head_block_producer"] != system_config.SYSTEM_ACCOUNT_NAME
             ret=Utils.waitForBool(lam)
             if not ret:
                 Utils.Print("ERROR: Block production handover failed.")
@@ -1196,7 +1196,7 @@ class Cluster(object):
                 return None
             return trans
 
-        systemAccounts = ['gax.bpay', 'gax.msig', 'gax.names', 'gax.ram', 'gax.ramfee', 'gax.saving', 'gax.stake', 'gax.token', 'gax.vpay', 'gax.wrap']
+        systemAccounts = [system_config.SYSTEM_BPAY_ACCOUNT_NAME, system_config.SYSTEM_MULTISIG_ACCOUNT_NAME, system_config.SYSTEM_NAMES_ACCOUNT_NAME, system_config.SYSTEM_RAM_ACCOUNT_NAME, system_config.SYSTEM_RAMFEE_ACCOUNT_NAME, system_config.SYSTEM_SAVING_ACCOUNT_NAME, system_config.SYSTEM_STAKE_ACCOUNT_NAME, system_config.SYSTEM_TOKEN_ACCOUNT_NAME, system_config.SYSTEM_VPAY_ACCOUNT_NAME, system_config.SYSTEM_WRAP_ACCOUNT_NAME]
         acctTrans = list(map(createSystemAccount, systemAccounts))
 
         for trans in acctTrans:
@@ -1208,8 +1208,8 @@ class Cluster(object):
             return None
 
         eosioTokenAccount = copy.deepcopy(eosioAccount)
-        eosioTokenAccount.name = 'gax.token'
-        contract="gax.token"
+        eosioTokenAccount.name = system_config.SYSTEM_TOKEN_ACCOUNT_NAME
+        contract=system_config.SYSTEM_TOKEN_ACCOUNT_NAME
         contractDir=str(self.unittestsContractsPath / contract)
         wasmFile="%s.wasm" % (contract)
         abiFile="%s.abi" % (contract)
@@ -1265,7 +1265,7 @@ class Cluster(object):
             return None
 
         if loadSystemContract:
-            contract="gax.system"
+            contract=system_config.SYSTEM_CONTRACT_NAME
             contractDir=str(self.unittestsContractsPath / contract)
             wasmFile="%s.wasm" % (contract)
             abiFile="%s.abi" % (contract)

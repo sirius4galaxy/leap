@@ -6,7 +6,7 @@ import time
 import unittest
 import os
 
-from TestHarness import Cluster, Node, TestHelper, Utils, WalletMgr, CORE_SYMBOL
+from TestHarness import Cluster, Node, TestHelper, Utils, WalletMgr, CORE_SYMBOL, system_config
 
 testSuccessful = True
 
@@ -29,8 +29,8 @@ class TraceApiPluginTest(unittest.TestCase):
     # start keosd and nodeos
     def startEnv(self) :
         account_names = ["alice", "bob", "charlie"]
-        abs_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.token/gax.token.abi')
-        traceNodeosArgs = " --trace-rpc-abi gax.token=" + abs_path
+        abs_path = os.path.abspath(os.getcwd() + f'/unittests/contracts/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}.abi')
+        traceNodeosArgs = f" --trace-rpc-abi {system_config.SYSTEM_TOKEN_ACCOUNT_NAME}=" + abs_path
         self.cluster.launch(totalNodes=1, extraNodeosArgs=traceNodeosArgs)
         self.walletMgr.launch()
         testWalletName="testwallet"

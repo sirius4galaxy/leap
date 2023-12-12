@@ -4,7 +4,7 @@
 #include <eosio/chain/types.hpp>
 #include <eosio/chain/thread_utils.hpp>
 #include <eosio/testing/tester.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #include <fc/io/json.hpp>
 #include <fc/log/logger_config.hpp>
 #include <appbase/application.hpp>
@@ -700,26 +700,26 @@ BOOST_AUTO_TEST_CASE(transaction_test) { try {
 
    testing::TESTER test;
    signed_transaction trx;
-
+   name sname(SYSTEM_ACCOUNT_NAME);
    fc::variant pretty_trx = fc::mutable_variant_object()
       ("actions", fc::variants({
          fc::mutable_variant_object()
-            ("account", "gax")
+            ("account", sname.to_string())
             ("name", "reqauth")
             ("authorization", fc::variants({
                fc::mutable_variant_object()
-                  ("actor", "gax")
+                  ("actor", sname.to_string())
                   ("permission", "active")
             }))
             ("data", fc::mutable_variant_object()
-               ("from", "gax")
+               ("from", sname.to_string())
             )
          })
       )
       // lets also push a context free action, the multi chain test will then also include a context free action
       ("context_free_actions", fc::variants({
          fc::mutable_variant_object()
-            ("account", "gax")
+            ("account", sname.to_string())
             ("name", "nonce")
             ("data", fc::raw::pack(std::string("dummy")))
          })
@@ -865,25 +865,25 @@ BOOST_AUTO_TEST_CASE(transaction_metadata_test) { try {
 
    testing::TESTER test;
    signed_transaction trx;
-
+   name sname(SYSTEM_ACCOUNT_NAME);
    fc::variant pretty_trx = fc::mutable_variant_object()
       ("actions", fc::variants({
          fc::mutable_variant_object()
-            ("account", "gax")
+            ("account", sname.to_string())
             ("name", "reqauth")
             ("authorization", fc::variants({
                fc::mutable_variant_object()
-                  ("actor", "gax")
+                  ("actor", sname.to_string())
                   ("permission", "active")
             }))
             ("data", fc::mutable_variant_object()
-               ("from", "gax")
+               ("from", sname.to_string())
             )
          })
       )
       ("context_free_actions", fc::variants({
          fc::mutable_variant_object()
-            ("account", "gax")
+            ("account", sname.to_string())
             ("name", "nonce")
             ("data", fc::raw::pack(std::string("dummy data")))
          })

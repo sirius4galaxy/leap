@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.8 )
+cmake_minimum_required( VERSION 3.14 )
 
 project( leap )
 include(CTest) # suppresses DartConfiguration.tcl error
@@ -8,7 +8,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 include( GNUInstallDirs )
 include( MASSigning )
-
+include( ${CMAKE_CURRENT_SOURCE_DIR}/config.cmake )
 set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_EXTENSIONS ON )
 set( CXX_STANDARD_REQUIRED ON)
@@ -30,10 +30,10 @@ option(ENABLE_WERROR "Enable `-Werror` compilation flag." Off)
 option(ENABLE_WEXTRA "Enable `-Wextra` compilation flag." Off)
 
 
-set( CLI_CLIENT_EXECUTABLE_NAME gaxcli )
-set( NODE_EXECUTABLE_NAME gaxnod )
-set( KEY_STORE_EXECUTABLE_NAME gaxkey )
-set( LEAP_UTIL_EXECUTABLE_NAME gax-util )
+#set( CLI_CLIENT_EXECUTABLE_NAME gaxcli )
+#set( NODE_EXECUTABLE_NAME gaxnod )
+#set( KEY_STORE_EXECUTABLE_NAME gaxkey )
+#set( LEAP_UTIL_EXECUTABLE_NAME gax-util )
 
 # http://stackoverflow.com/a/18369825
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -161,7 +161,7 @@ endif()
 include(utils)
 
 if ("${CORE_SYMBOL_NAME}" STREQUAL "")
-	set( CORE_SYMBOL_NAME "GAX" )
+	set( CORE_SYMBOL_NAME ${ROOT_CORE_SYMBOL_NAME} )
 endif()
 string(TOUPPER ${CORE_SYMBOL_NAME} CORE_SYMBOL_NAME)
 
@@ -173,7 +173,7 @@ endif()
 message( STATUS "Using '${CORE_SYMBOL_NAME}' as CORE symbol name" )
 
 if ("${EOSIO_ROOT_KEY}" STREQUAL "")
-	set(EOSIO_ROOT_KEY "GAX6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV")
+	set(EOSIO_ROOT_KEY ${ROOT_EOSIO_ROOT_KEY})
 endif()
 
 message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for 'gax' account" )

@@ -9,7 +9,7 @@ import re
 from datetime import datetime
 from datetime import timedelta
 
-from TestHarness import Cluster, TestHelper, Utils
+from TestHarness import Cluster, TestHelper, Utils, system_config
 
 Print=Utils.Print
 errorExit=Utils.errorExit
@@ -76,7 +76,7 @@ def prepareDirectories():
 def runNodeos(extraNodeosArgs, myTimeout):
     """Startup nodeos, wait for timeout (before forced shutdown) and collect output."""
     if debug: Print("Launching nodeos process.")
-    cmd="programs/nodeos/nodeos --config-dir rsmStaging/etc -e -p gax --plugin eosio::chain_api_plugin --data-dir " + dataDir + " "
+    cmd=f"programs/nodeos/nodeos --config-dir rsmStaging/etc -e -p {system_config.SYSTEM_ACCOUNT_NAME} --plugin eosio::chain_api_plugin --data-dir " + dataDir + " "
 
     cmd=cmd + extraNodeosArgs
     if debug: Print("cmd: %s" % (cmd))

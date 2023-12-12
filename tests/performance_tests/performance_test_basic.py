@@ -16,7 +16,7 @@ from pathlib import Path, PurePath
 sys.path.append(str(PurePath(PurePath(Path(__file__).absolute()).parent).parent))
 
 from NodeosPluginArgs import ChainPluginArgs, HttpPluginArgs, NetPluginArgs, ProducerPluginArgs, ResourceMonitorPluginArgs, SignatureProviderPluginArgs, StateHistoryPluginArgs, TraceApiPluginArgs
-from TestHarness import Account, Cluster, TestHelper, Utils, WalletMgr, TransactionGeneratorsLauncher, TpsTrxGensConfig
+from TestHarness import Account, Cluster, TestHelper, Utils, WalletMgr, TransactionGeneratorsLauncher, TpsTrxGensConfig, system_config
 from TestHarness.TestHelper import AppArgs
 from dataclasses import dataclass, asdict, field
 from datetime import datetime
@@ -74,7 +74,7 @@ class PerformanceTestBasic:
             contractDir: str = "unittests/contracts/gax.system"
             wasmFile: str = "gax.system.wasm"
             abiFile: str = "gax.system.abi"
-            account: Account = Account("gax")
+            account: Account = Account(f"{system_config.SYSTEM_ACCOUNT_NAME}")
 
         pnodes: int = 1
         totalNodes: int = 2
@@ -95,7 +95,7 @@ class PerformanceTestBasic:
         def log_transactions(self, trxDataFile, block):
             for trx in block['payload']['transactions']:
                 for actions in trx['actions']:
-                    if actions['account'] != 'gax' or actions['action'] != 'onblock':
+                    if actions['account'] != f'{system_config.SYSTEM_ACCOUNT_NAME}' or actions['action'] != 'onblock':
                         trxDataFile.write(f"{trx['id']},{trx['block_num']},{trx['block_time']},{trx['cpu_usage_us']},{trx['net_usage_words']},{trx['actions']}\n")
 
         def __post_init__(self):
@@ -162,7 +162,7 @@ class PerformanceTestBasic:
         self.trxGenLogDirPath = self.loggingConfig.logDirPath/Path("trxGenLogs")
         self.varLogsDirPath = self.loggingConfig.logDirPath/Path("var")
         self.etcLogsDirPath = self.loggingConfig.logDirPath/Path("etc")
-        self.etcEosioLogsDirPath = self.etcLogsDirPath/Path("gax")
+        self.etcEosioLogsDirPath = self.etcLogsDirPath/Path(f"{system_config.SYSTEM_ACCOUNT_NAME}")
         self.blockDataLogDirPath = self.loggingConfig.logDirPath/Path("blockDataLogs")
         self.blockDataPath = self.blockDataLogDirPath/Path("blockData.txt")
         self.transactionMetricsDataPath = self.blockDataLogDirPath/Path("transaction_metrics.csv")
@@ -418,7 +418,7 @@ class PerformanceTestBasic:
         except Exception as e:
             print(f"Failed to move '{self.cluster.nodeosLogPath}' to '{self.varLogsDirPath}': {type(e)}: {e}")
 
-        etcEosioDir = Path("etc")/"gax"
+        etcEosioDir = Path("etc")/f"{system_config.SYSTEM_ACCOUNT_NAME}"
         for path in os.listdir(etcEosioDir):
             if path == "launcher":
                 try:
@@ -558,7 +558,7 @@ class PtbArgumentsHandler(object):
         ptbBaseParserGroup.add_argument("--quiet", help="Whether to quiet printing intermediate results and reports to stdout", action='store_true')
         ptbBaseParserGroup.add_argument("--prods-enable-trace-api", help="Determines whether producer nodes should have eosio::trace_api_plugin enabled", action='store_true')
         ptbBaseParserGroup.add_argument("--print-missing-transactions", help="Toggles if missing transactions are be printed upon test completion.", action='store_true')
-        ptbBaseParserGroup.add_argument("--account-name", type=str, help="Name of the account to create and assign a contract to", default="gax")
+        ptbBaseParserGroup.add_argument("--account-name", type=str, help="Name of the account to create and assign a contract to", default=f"{system_config.SYSTEM_ACCOUNT_NAME}")
         ptbBaseParserGroup.add_argument("--contract-dir", type=str, help="Path to contract dir", default="unittests/contracts/gax.system")
         ptbBaseParserGroup.add_argument("--wasm-file", type=str, help="WASM file name for contract", default="gax.system.wasm")
         ptbBaseParserGroup.add_argument("--abi-file", type=str, help="ABI file name for contract", default="gax.system.abi")

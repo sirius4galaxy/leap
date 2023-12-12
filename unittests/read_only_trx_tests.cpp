@@ -4,7 +4,7 @@
 #include <eosio/chain/global_property_object.hpp>
 #include <fc/variant_object.hpp>
 #include <test_contracts.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #ifdef NON_VALIDATING_TEST
 #define TESTER tester
 #else
@@ -99,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE(setcode_test, read_only_trx_tester) { try {
 
    std::vector<uint8_t> code(10);
    action act = {
-      {}, setcode { "eosio"_n, 0, 0, bytes(code.begin(), code.end()) }
+      {}, setcode { SYSTEM_ACCOUNT_NAME, 0, 0, bytes(code.begin(), code.end()) }
    };
 
    BOOST_CHECK_THROW( send_action(act), action_validate_exception );

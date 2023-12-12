@@ -3,7 +3,7 @@
 #include <eosio/testing/tester.hpp>
 
 #include <eosio/chain/fork_database.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #include <Runtime/Runtime.h>
 
 #include <fc/variant_object.hpp>
@@ -141,26 +141,26 @@ BOOST_AUTO_TEST_CASE( forking ) try {
    wlog("set producer schedule to [dan,sam,pam]");
    c.produce_blocks(30);
 
-   auto r2 = c.create_accounts( {"gax.token"_n} );
+   auto r2 = c.create_accounts( {SYSTEM_TOKEN_ACCOUNT_NAME} );
    wdump((fc::json::to_pretty_string(r2)));
-   c.set_code( "gax.token"_n, test_contracts::eosio_token_wasm() );
-   c.set_abi( "gax.token"_n, test_contracts::eosio_token_abi().data() );
+   c.set_code( SYSTEM_TOKEN_ACCOUNT_NAME, test_contracts::eosio_token_wasm() );
+   c.set_abi( SYSTEM_TOKEN_ACCOUNT_NAME, test_contracts::eosio_token_abi().data() );
    c.produce_blocks(10);
 
-
-   auto cr = c.push_action( "gax.token"_n, "create"_n, "gax.token"_n, mutable_variant_object()
-              ("issuer",       "gax" )
+   name sname(SYSTEM_ACCOUNT_NAME);
+   auto cr = c.push_action( SYSTEM_TOKEN_ACCOUNT_NAME, "create"_n, SYSTEM_TOKEN_ACCOUNT_NAME, mutable_variant_object()
+              ("issuer",       sname.to_string() )
               ("maximum_supply", core_from_string("10000000.0000"))
       );
 
-   cr = c.push_action( "gax.token"_n, "issue"_n, config::system_account_name, mutable_variant_object()
-              ("to",       "gax" )
+   cr = c.push_action( SYSTEM_TOKEN_ACCOUNT_NAME, "issue"_n, config::system_account_name, mutable_variant_object()
+              ("to",       sname.to_string() )
               ("quantity", core_from_string("100.0000"))
               ("memo", "")
       );
 
-   cr = c.push_action( "gax.token"_n, "transfer"_n, config::system_account_name, mutable_variant_object()
-              ("from",     "gax")
+   cr = c.push_action( SYSTEM_TOKEN_ACCOUNT_NAME, "transfer"_n, config::system_account_name, mutable_variant_object()
+              ("from",     sname.to_string())
               ("to",       "dan" )
               ("quantity", core_from_string("100.0000"))
               ("memo", "")

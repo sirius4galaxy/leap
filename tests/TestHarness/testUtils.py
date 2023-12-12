@@ -10,6 +10,7 @@ import inspect
 import json
 import shlex
 import socket
+from .  import system_config
 from datetime import datetime
 from sys import stdout
 from sys import exit
@@ -77,7 +78,7 @@ class Utils:
     PID = os.getpid()
     DataPath= f"{TestLogRoot}/{DataRoot}{PID}"
     DataDir= f"{DataPath}/"
-    ConfigDir=f"{str(Path.cwd().resolve())}/etc/gax/"
+    ConfigDir=f"{str(Path.cwd().resolve())}/etc/"+system_config.SYSTEM_ACCOUNT_NAME+"/"
 
     TimeFmt='%Y-%m-%dT%H:%M:%S.%f'
 

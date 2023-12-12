@@ -3,7 +3,7 @@
 import json
 import subprocess
 import time
-
+from .            import system_config
 from .core_symbol import CORE_SYMBOL
 from .depresolver import dep
 from .queries import NodeosQueries
@@ -345,8 +345,8 @@ class Transactions(NodeosQueries):
             for digest in group:
                 Utils.Print("push activate action with digest {}".format(digest))
                 data="{{\"feature_digest\":{}}}".format(digest)
-                opts="--permission gax@active"
-                success, trans=self.pushMessage("gax", "activate", data, opts)
+                opts="--permission "+system_config.SYSTEM_ACCOUNT_NAME+"@active"
+                success, trans=self.pushMessage(system_config.SYSTEM_ACCOUNT_NAME, "activate", data, opts)
                 if not success:
                     Utils.Print("ERROR: Failed to preactive digest {}".format(digest))
                     return None

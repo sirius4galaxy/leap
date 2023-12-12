@@ -24,6 +24,7 @@
 #include <eosio/chain/generated_transaction_object.hpp>
 #include <eosio/chain/wasm_interface.hpp>
 #include <eosio/chain/resource_limits.hpp>
+#include <eosio/chain/system_config.hpp>
 
 #include <fc/crypto/digest.hpp>
 #include <fc/crypto/sha256.hpp>
@@ -60,6 +61,7 @@ static constexpr unsigned long long WASM_TEST_ACTION(const char* cls, const char
 }
 
 using namespace eosio::chain::literals;
+using namespace eosio::chain;
 
 struct u128_action {
   unsigned __int128  values[3]; //16*3
@@ -892,7 +894,7 @@ BOOST_AUTO_TEST_CASE(light_validation_skip_cfa) try {
    auto conf_genesis = tester::default_config( tempdir );
 
    auto& cfg = conf_genesis.first;
-   cfg.trusted_producers = { "gax"_n }; // light validation
+   cfg.trusted_producers = { SYSTEM_ACCOUNT_NAME }; // light validation
 
    tester other( conf_genesis.first, conf_genesis.second );
    other.execute_setup_policy( setup_policy::full );
@@ -2900,7 +2902,7 @@ static const char get_resource_limits_null_cpu_wast[] = R"=====(
 BOOST_FIXTURE_TEST_CASE(resource_limits_tests, TESTER) {
    create_accounts( { "rlimits"_n, "testacnt"_n } );
    set_code("rlimits"_n, resource_limits_wast);
-   push_action( "gax"_n, "setpriv"_n, "gax"_n, mutable_variant_object()("account", "rlimits"_n)("is_priv", 1));
+   push_action( SYSTEM_ACCOUNT_NAME, "setpriv"_n, SYSTEM_ACCOUNT_NAME, mutable_variant_object()("account", "rlimits"_n)("is_priv", 1));
    produce_block();
 
    auto pushit = [&]{
@@ -3032,10 +3034,10 @@ BOOST_FIXTURE_TEST_CASE(permission_usage_tests, TESTER) { try {
    produce_blocks(5);
 
    set_authority( "bob"_n, "perm1"_n, authority( get_private_key("bob"_n, "perm1").get_public_key() ) );
-
+   name sname(SYSTEM_ACCOUNT_NAME);
    push_action(config::system_account_name, linkauth::get_name(), "bob"_n, fc::mutable_variant_object()
            ("account", "bob")
-           ("code", "gax")
+           ("code", sname.to_string())
            ("type", "reqauth")
            ("requirement", "perm1")
    );

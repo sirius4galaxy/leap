@@ -4,7 +4,7 @@ import os
 import shutil
 import time
 import signal
-from TestHarness import Node, TestHelper, Utils
+from TestHarness import Node, TestHelper, Utils, system_config
 
 node_id = 1
 nodeos = Node(TestHelper.LOCAL_HOST, TestHelper.DEFAULT_PORT, node_id)
@@ -17,7 +17,7 @@ if not os.path.exists(config_dir):
     os.makedirs(config_dir)
 
 try:
-    start_nodeos_cmd = f"{Utils.EosServerPath} -e -p gax --data-dir={data_dir} --config-dir={config_dir} --blocks-log-stride 10" \
+    start_nodeos_cmd = f"{Utils.EosServerPath} -e -p {system_config.SYSTEM_ACCOUNT_NAME} --data-dir={data_dir} --config-dir={config_dir} --blocks-log-stride 10" \
                         " --plugin=eosio::http_plugin --plugin=eosio::chain_api_plugin --http-server-address=localhost:8888"
 
     nodeos.launchCmd(start_nodeos_cmd, node_id)

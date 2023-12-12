@@ -2,7 +2,7 @@
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #include <boost/test/unit_test.hpp>
 #pragma GCC diagnostic pop
-
+#include <eosio/chain/system_config.hpp>
 #include <eosio/chain/exceptions.hpp>
 #include <eosio/chain/resource_limits.hpp>
 #include <eosio/testing/tester.hpp>
@@ -32,7 +32,7 @@ BOOST_FIXTURE_TEST_CASE(ram_tests, eosio_system::eosio_system_tester) { try {
    create_account_with_resources("testram11111"_n,config::system_account_name, init_request_bytes + 40);
    create_account_with_resources("testram22222"_n,config::system_account_name, init_request_bytes + 1190);
    produce_blocks(10);
-   BOOST_REQUIRE_EQUAL( success(), stake( name("gax.stake"), name("testram11111"), core_from_string("10.0000"), core_from_string("5.0000") ) );
+   BOOST_REQUIRE_EQUAL( success(), stake( SYSTEM_STAKE_ACCOUNT_NAME, name("testram11111"), core_from_string("10.0000"), core_from_string("5.0000") ) );
    produce_blocks(10);
 
    for (auto i = 0; i < 10; ++i) {

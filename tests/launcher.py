@@ -24,7 +24,7 @@ from typing import ClassVar, Dict, List
 from TestHarness import Cluster
 from TestHarness import Utils
 from TestHarness import fc_log_level
-
+from TestHarness import system_config
 block_dir = 'blocks'
 
 class EnhancedEncoder(json.JSONEncoder):
@@ -179,7 +179,7 @@ class launcher(object):
         parser.add_argument('--bounce', type=comma_separated, help='comma-separated list of node numbers that will be restarted', default=[])
         parser.add_argument('--roll', type=comma_separated, help='comma-separated list of host names where the nodes will be rolled to a new version')
         parser.add_argument('-b', '--base_dir', type=Path, help='base directory where configuration and data files will be written', default=Path('.'))
-        parser.add_argument('--config-dir', type=Path, help='directory containing configuration files such as config.ini', default=Path('etc') / 'gax')
+        parser.add_argument('--config-dir', type=Path, help='directory containing configuration files such as config.ini', default=Path('etc') / f'{system_config.SYSTEM_ACCOUNT_NAME}')
         parser.add_argument('--data-dir', type=Path, help='name of subdirectory under base-dir where node data will be written', default=Path('var') / 'lib')
         parser.add_argument('-c', '--config', type=Path, help='configuration file name relative to config-dir', default='config.ini')
         parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.0')

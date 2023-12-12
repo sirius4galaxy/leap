@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <fc/log/logger.hpp>
 #include <eosio/chain/exceptions.hpp>
+#include <eosio/chain/system_config.hpp>
 
 #ifdef NON_VALIDATING_TEST
 #define TESTER tester
@@ -51,7 +52,7 @@ public:
     }
 
     void transfer( name from, name to, const asset& amount, name manager = config::system_account_name ) {
-      base_tester::push_action( "gax.token"_n, "transfer"_n, manager, mutable_variant_object()
+      base_tester::push_action( SYSTEM_TOKEN_ACCOUNT_NAME, "transfer"_n, manager, mutable_variant_object()
                                 ("from",    from)
                                 ("to",      to )
                                 ("quantity", amount)
@@ -74,7 +75,7 @@ public:
     }
 
     asset get_balance( const account_name& act ) {
-      vector<char> data = get_row_by_account( "gax.token"_n, act, "accounts"_n, name(symbol(CORE_SYMBOL).to_symbol_code().value) );
+      vector<char> data = get_row_by_account( SYSTEM_TOKEN_ACCOUNT_NAME, act, "accounts"_n, name(symbol(CORE_SYMBOL).to_symbol_code().value) );
       return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : token_abi_ser.binary_to_variant("account", data, abi_serializer::create_yield_function( abi_serializer_max_time ))["balance"].as<asset>();
     }
 
@@ -188,29 +189,29 @@ public:
     }
 
     void issue( name to, const asset& amount, name manager = config::system_account_name ) {
-        base_tester::push_action( "gax.token"_n, "issue"_n, manager, mutable_variant_object()
+        base_tester::push_action( SYSTEM_TOKEN_ACCOUNT_NAME, "issue"_n, manager, mutable_variant_object()
                 ("to",      to )
                 ("quantity", amount )
                 ("memo", "")
         );
     }
     void setup_system_accounts(){
-       create_accounts({ "gax.token"_n, "gax.ram"_n, "gax.ramfee"_n, "gax.stake"_n,
-                         "gax.bpay"_n, "gax.vpay"_n, "gax.saving"_n, "gax.names"_n, "gax.rex"_n });
+       create_accounts({ SYSTEM_TOKEN_ACCOUNT_NAME, SYSTEM_RAM_ACCOUNT_NAME, SYSTEM_RAMFEE_ACCOUNT_NAME, SYSTEM_STAKE_ACCOUNT_NAME,
+                         SYSTEM_BPAY_ACCOUNT_NAME, SYSTEM_VPAY_ACCOUNT_NAME, SYSTEM_SAVING_ACCOUNT_NAME, SYSTEM_NAMES_ACCOUNT_NAME, SYSTEM_REX_ACCOUNT_NAME });
 
-       set_code( "gax.token"_n, test_contracts::eosio_token_wasm() );
-       set_abi( "gax.token"_n, test_contracts::eosio_token_abi().data() );
+       set_code( SYSTEM_TOKEN_ACCOUNT_NAME, test_contracts::eosio_token_wasm() );
+       set_abi( SYSTEM_TOKEN_ACCOUNT_NAME, test_contracts::eosio_token_abi().data() );
 
        {
-           const auto& accnt = control->db().get<account_object,by_name>( "gax.token"_n );
+           const auto& accnt = control->db().get<account_object,by_name>( SYSTEM_TOKEN_ACCOUNT_NAME );
            abi_def abi;
            BOOST_CHECK_EQUAL(abi_serializer::to_abi(accnt.abi, abi), true);
            token_abi_ser.set_abi(std::move(abi), abi_serializer::create_yield_function( abi_serializer_max_time ));
        }
 
-       create_currency( "gax.token"_n, config::system_account_name, core_from_string("10000000000.0000") );
+       create_currency( SYSTEM_TOKEN_ACCOUNT_NAME, config::system_account_name, core_from_string("10000000000.0000") );
        issue(config::system_account_name,      core_from_string("1000000000.0000"));
-       BOOST_CHECK_EQUAL( core_from_string("1000000000.0000"), get_balance( name("gax") ) );
+       BOOST_CHECK_EQUAL( core_from_string("1000000000.0000"), get_balance( SYSTEM_ACCOUNT_NAME) );
 
        set_code( config::system_account_name, test_contracts::eosio_system_wasm() );
        set_abi( config::system_account_name, test_contracts::eosio_system_abi().data() );
@@ -303,7 +304,7 @@ public:
 
     vector<name> active_and_vote_producers() {
         //stake more than 15% of total EOS supply to activate chain
-        transfer( name("gax"), name("alice1111111"), core_from_string("650000000.0000"), name("gax") );
+        transfer( SYSTEM_ACCOUNT_NAME, name("alice1111111"), core_from_string("650000000.0000"), SYSTEM_ACCOUNT_NAME );
         BOOST_CHECK_EQUAL( success(), stake( name("alice1111111"), name("alice1111111"), core_from_string("300000000.0000"), core_from_string("300000000.0000") ) );
 
         // create accounts {defproducera, defproducerb, ..., defproducerz} and register as producers
@@ -375,7 +376,7 @@ BOOST_FIXTURE_TEST_CASE(account_results_total_resources_test, chain_plugin_teste
     produce_blocks();
     create_account_with_resources("alice1111111"_n, config::system_account_name);
     //stake more than 15% of total EOS supply to activate chain
-    transfer( name("gax"), name("alice1111111"), core_from_string("650000000.0000"), name("gax") );
+    transfer( SYSTEM_ACCOUNT_NAME, name("alice1111111"), core_from_string("650000000.0000"), SYSTEM_ACCOUNT_NAME );
 
     read_only::get_account_results results = get_account_info(name("alice1111111"));
     BOOST_CHECK(results.total_resources.get_type() != fc::variant::type_id::null_type);
@@ -401,7 +402,7 @@ BOOST_FIXTURE_TEST_CASE(account_results_self_delegated_bandwidth_test, chain_plu
     BOOST_CHECK_EQUAL(core_from_string("12.0000"), results.total_resources["cpu_weight"].as<asset>());
 
     //self delegate bandwidth
-    transfer( name("gax"), name("alice1111111"), core_from_string("650000000.0000"), name("gax") );
+    transfer( SYSTEM_ACCOUNT_NAME, name("alice1111111"), core_from_string("650000000.0000"), SYSTEM_ACCOUNT_NAME );
     BOOST_CHECK_EQUAL(success(), stake(name("alice1111111"), name("alice1111111"), nstake, cstake));
 
     results = get_account_info(name("alice1111111"));
@@ -494,7 +495,7 @@ BOOST_FIXTURE_TEST_CASE(account_results_rex_info_test, chain_plugin_tester) { tr
     create_account_with_resources("alice1111111"_n, config::system_account_name, core_from_string("1.0000"), false);
 
     //stake more than 15% of total EOS supply to activate chain
-    transfer( name("gax"), name("alice1111111"), core_from_string("650000000.0000"), name("gax") );
+    transfer( SYSTEM_ACCOUNT_NAME, name("alice1111111"), core_from_string("650000000.0000"), SYSTEM_ACCOUNT_NAME );
     deposit(name("alice1111111"), core_from_string("1000.0000"));
     BOOST_CHECK_EQUAL( success(), buyrex(name("alice1111111"), core_from_string("100.0000")) );
 

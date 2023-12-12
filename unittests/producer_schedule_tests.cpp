@@ -1,6 +1,6 @@
 #include <eosio/chain/global_property_object.hpp>
 #include <eosio/testing/tester.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "fork_test_utilities.hpp"
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE( extra_signatures_test ) try {
    main.block_signing_private_keys.emplace(get_public_key("alice"_n, "bs1"), get_private_key("alice"_n, "bs1"));
    main.block_signing_private_keys.emplace(get_public_key("alice"_n, "bs2"), get_private_key("alice"_n, "bs2"));
 
-   BOOST_REQUIRE( main.control->pending_block_producer() == "gax"_n );
+   BOOST_REQUIRE( main.control->pending_block_producer() == SYSTEM_ACCOUNT_NAME );
    main.produce_blocks(3);
    BOOST_REQUIRE( main.control->pending_block_producer() == "alice"_n );
 

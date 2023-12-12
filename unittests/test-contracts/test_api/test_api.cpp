@@ -12,12 +12,13 @@
 #include "test_print.cpp"
 #include "test_transaction.cpp"
 #include "test_types.cpp"
+#include "test_api_config.hpp"
 
 name global_receiver;
 
 extern "C" {
    void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
-      if( code == "gax"_n.value && action == "onerror"_n.value ) {
+      if( code == SYSTEM_ACCOUNT.value && action == "onerror"_n.value ) {
          auto error = eosio::onerror::from_current_action();
          eosio::print("onerror called\n");
          auto error_trx = error.unpack_sent_trx();

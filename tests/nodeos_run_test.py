@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from TestHarness import Account, Cluster, Node, ReturnType, TestHelper, Utils, WalletMgr, CORE_SYMBOL
+from TestHarness import Account, Cluster, Node, ReturnType, TestHelper, Utils, WalletMgr, CORE_SYMBOL, system_config
 from pathlib import Path
 
 import decimal
@@ -66,8 +66,8 @@ try:
         cluster.cleanup()
         Print("Stand up cluster")
 
-        abs_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.token/gax.token.abi')
-        traceNodeosArgs=" --http-max-response-time-ms 990000 --trace-rpc-abi gax.token=" + abs_path
+        abs_path = os.path.abspath(os.getcwd() + f'/unittests/contracts/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}.abi')
+        traceNodeosArgs=f" --http-max-response-time-ms 990000 --trace-rpc-abi {system_config.SYSTEM_TOKEN_ACCOUNT_NAME}=" + abs_path
         specificNodeosInstances={0: "bin/gaxnod"}
         if cluster.launch(prodCount=prodCount, onlyBios=onlyBios, dontBootstrap=dontBootstrap, extraNodeosArgs=traceNodeosArgs, specificNodeosInstances=specificNodeosInstances) is False:
             cmdError("launcher")
@@ -312,9 +312,9 @@ try:
     if hashNum != 0:
         errorExit("FAILURE - get code currency1111 failed", raw=True)
 
-    contractDir="unittests/contracts/gax.token"
-    wasmFile="gax.token.wasm"
-    abiFile="gax.token.abi"
+    contractDir=f"unittests/contracts/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}"
+    wasmFile=f"{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}.wasm"
+    abiFile=f"{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}.abi"
     Print("Publish contract")
     trans=node.publishContract(currencyAccount, contractDir, wasmFile, abiFile, waitForTransBlock=True)
     if trans is None:

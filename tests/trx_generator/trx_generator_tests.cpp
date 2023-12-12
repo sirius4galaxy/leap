@@ -1,10 +1,11 @@
 #include <trx_provider.hpp>
 #include <trx_generator.cpp>
+#include <eosio/chain/system_config.hpp>
 #define BOOST_TEST_MODULE trx_generator_tests
 #include <boost/test/included/unit_test.hpp>
 
 using namespace eosio::testing;
-
+using namespace eosio::chain;
 struct simple_tps_monitor {
    std::vector<tps_test_stats> _calls;
    bool monitor_test(const tps_test_stats& stats) {
@@ -318,14 +319,16 @@ BOOST_AUTO_TEST_CASE(tps_cant_keep_up_monitored)
 
 BOOST_AUTO_TEST_CASE(trx_generator_constructor)
 {
-   trx_generator_base_config tg_config{1, chain::chain_id_type("999"), chain::name("gax"), fc::seconds(3600),
+   trx_generator_base_config tg_config{1, chain::chain_id_type("999"), SYSTEM_ACCOUNT_NAME, fc::seconds(3600),
                                        fc::variant("00000062989f69fd251df3e0b274c3364ffc2f4fce73de3f1c7b5e11a4c92f21").as<chain::block_id_type>(), ".", true};
    provider_base_config p_config{"127.0.0.1", 9876};
-   const std::string abi_file = "../../unittests/contracts/gax.token/gax.token.abi";
+   name tname(SYSTEM_TOKEN_ACCOUNT_NAME);
+   const std::string abi_file = "../../unittests/contracts/"+tname.to_string()+"/"+tname.to_string()+".abi";
    const std::string actions_data = "[{\"actionAuthAcct\": \"testacct1\",\"actionName\": \"transfer\",\"authorization\": {\"actor\": \"testacct1\",\"permission\": \"active\"},"
                                     "\"actionData\": {\"from\": \"testacct1\",\"to\": \"testacct2\",\"quantity\": \"0.0001 CUR\",\"memo\": \"transaction specified\"}}]";
+   name sname(SYSTEM_ACCOUNT_NAME);
    const std::string action_auths = "{\"testacct1\":\"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3\",\"testacct2\":\"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3\","
-                                    "\"gax\":\"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3\"}";
+                                    +sname.to_string()+":"+"\"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3\"}";
    user_specified_trx_config trx_config{abi_file, actions_data, action_auths};
 
    auto generator = trx_generator(tg_config, p_config, trx_config);

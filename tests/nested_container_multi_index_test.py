@@ -2,7 +2,7 @@
 
 import json
 
-from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletMgr
+from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletMgr, system_config
 
 ###############################################################
 # Nested_container_multi_index_test
@@ -111,7 +111,7 @@ try:
     node = cluster.getNode()
 
     Print("Setting account privilege")
-    node.pushMessage(cluster.eosioAccount.name, 'setpriv', '["nestcontnmi", 1]', '-p gax@active')
+    node.pushMessage(cluster.eosioAccount.name, 'setpriv', '["nestcontnmi", 1]', f'-p {system_config.SYSTEM_ACCOUNT_NAME}@active')
 
     Print("Loading nested container contract")
     node.publishContract(MIacct, contractDir, wasmFile, abiFile, waitForTransBlock=True)

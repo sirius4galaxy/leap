@@ -5,7 +5,7 @@ import decimal
 import math
 import re
 
-from TestHarness import Cluster, Node, TestHelper, Utils, WalletMgr
+from TestHarness import Cluster, Node, TestHelper, Utils, WalletMgr, system_config
 
 ###############################################################
 # nodeos_producer_watermark_test
@@ -44,9 +44,9 @@ def setProds(sharedProdKey):
 
     setProdsStr += ' ] }'
     Utils.Print("setprods: %s" % (setProdsStr))
-    opts="--permission gax@active"
+    opts=f"--permission {system_config.SYSTEM_ACCOUNT_NAME}@active"
     # pylint: disable=redefined-variable-type
-    trans=cluster.biosNode.pushMessage("gax", "setprods", setProdsStr, opts)
+    trans=cluster.biosNode.pushMessage(f"{system_config.SYSTEM_ACCOUNT_NAME}", "setprods", setProdsStr, opts)
     if trans is None or not trans[0]:
         Utils.Print("ERROR: Failed to set producer with cmd %s" % (setProdsStr))
 
@@ -203,7 +203,7 @@ try:
     while tries > 0:
         node.infoValid = False
         info = node.getInfo()
-        if node.infoValid and node.lastRetrievedHeadBlockProducer != "gax":
+        if node.infoValid and node.lastRetrievedHeadBlockProducer != f"{system_config.SYSTEM_ACCOUNT_NAME}":
             break
         time.sleep(1)
         tries = tries-1

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#
+# TODO: modify brand tags
 # This test ensures that connections with the same p2p-server-address
 # are not closed as redundant.
 #

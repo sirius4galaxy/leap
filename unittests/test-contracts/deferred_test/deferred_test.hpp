@@ -2,6 +2,7 @@
 
 #include <eosio/eosio.hpp>
 #include <vector>
+#include "deferred_test_config.hpp"
 
 class [[eosio::contract]] deferred_test : public eosio::contract {
 public:
@@ -24,6 +25,6 @@ public:
    [[eosio::action]]
    void fail();
 
-   [[eosio::on_notify("eosio::onerror")]]
+   [[eosio::on_notify(NOTIFY_ACTION)]]
    void on_error( uint128_t sender_id, eosio::ignore<std::vector<char>> sent_trx );
 };

@@ -10,6 +10,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 
+from . import system_config
 from .core_symbol import CORE_SYMBOL
 from .testUtils import Account
 from .testUtils import EnumType
@@ -498,7 +499,7 @@ class NodeosQueries:
     def getAccountEosBalanceStr(self, scope):
         """Returns SYS currency0000 account balance from cleos get table command. Returned balance is string following syntax "98.0311 SYS". """
         assert isinstance(scope, str)
-        amount=self.getTableAccountBalance("gax.token", scope)
+        amount=self.getTableAccountBalance(system_config.SYSTEM_TOKEN_ACCOUNT_NAME, scope)
         if Utils.Debug: Utils.Print("getNodeAccountEosBalance %s %s" % (scope, amount))
         assert isinstance(amount, str)
         return amount

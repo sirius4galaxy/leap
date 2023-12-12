@@ -4,7 +4,7 @@ import decimal
 import re
 import os
 
-from TestHarness import Cluster, Node, TestHelper, Utils, WalletMgr, CORE_SYMBOL
+from TestHarness import Cluster, Node, TestHelper, Utils, WalletMgr, CORE_SYMBOL, system_config
 from pathlib import Path
 
 ###############################################################
@@ -50,8 +50,8 @@ try:
         cluster.cleanup()
         Print("Stand up cluster")
         pnodes=4
-        abs_path = os.path.abspath(os.getcwd() + '/unittests/contracts/gax.token/gax.token.abi')
-        traceNodeosArgs=" --trace-rpc-abi gax.token=" + abs_path
+        abs_path = os.path.abspath(os.getcwd() + f'/unittests/contracts/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}.abi')
+        traceNodeosArgs=f" --trace-rpc-abi {system_config.SYSTEM_TOKEN_ACCOUNT_NAME}=" + abs_path
         if cluster.launch(pnodes=pnodes, totalNodes=pnodes, extraNodeosArgs=traceNodeosArgs) is False:
             cmdError("launcher")
             errorExit("Failed to stand up eos cluster.")

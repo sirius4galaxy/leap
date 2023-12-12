@@ -3,7 +3,7 @@
 import time
 import random
 
-from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletMgr
+from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletMgr, system_config
 
 ###############################################################
 # subjective-billing-test
@@ -113,7 +113,7 @@ try:
         memo = 'tx-{}'.format(x)
         txn = {
 
-            "actions": [{"account": "gax.token","name": "transfer",
+            "actions": [{"account": f"{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}","name": "transfer",
                          "authorization": [{"actor": "account1","permission": "active"}],
                          "data": {"from": "account1","to": "account2","quantity": "100000.0001 SYS","memo": memo},
                          "compression": "none"}]
@@ -136,7 +136,7 @@ try:
         memo = 'tx-{}'.format(x)
         txn = {
 
-            "actions": [{"account": "gax.token","name": "transfer",
+            "actions": [{"account": f"{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}","name": "transfer",
                          "authorization": [{"actor": "account2","permission": "active"}],
                          "data": {"from": "account2","to": "account1","quantity": "100000.0001 SYS","memo": memo},
                          "compression": "none"}]
@@ -159,7 +159,7 @@ try:
         memo = 'tx-{}'.format(x)
         txn = {
 
-            "actions": [{"account": "gax.token","name": "transfer",
+            "actions": [{"account": f"{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}","name": "transfer",
                          "authorization": [{"actor": "account1","permission": "active"}],
                          "data": {"from": "account1","to": "account2","quantity": "100000.0001 SYS","memo": memo},
                          "compression": "none"}]

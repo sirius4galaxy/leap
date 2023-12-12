@@ -2,7 +2,7 @@
 
 import random
 
-from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletMgr, CORE_SYMBOL
+from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletMgr, CORE_SYMBOL, system_config
 
 ###############################################################
 # compute_transaction_tests
@@ -106,7 +106,7 @@ try:
 
     Print("Sending read-only transfer")
     trx = {
-        "actions": [{"account": "gax.token","name": "transfer",
+        "actions": [{"account": system_config.SYSTEM_TOKEN_ACCOUNT_NAME,"name": "transfer",
         "authorization": [{"actor": "account1","permission": "active"}],
         "data": {"from": "account1","to": "account2","quantity": "1.0001 SYS","memo": "tx1"},
         "compression": "none"}]
@@ -132,7 +132,7 @@ try:
         memo = 'tx-{}'.format(x)
         trx2 = {
 
-            "actions": [{"account": "gax.token","name": "transfer",
+            "actions": [{"account": system_config.SYSTEM_TOKEN_ACCOUNT_NAME,"name": "transfer",
                          "authorization": [{"actor": "account2","permission": "active"}],
                          "data": {"from": "account2","to": "account1","quantity": "10.0001 SYS","memo": memo},
                          "compression": "none"}]
@@ -150,7 +150,7 @@ try:
         memo = 'tx-{}'.format(x)
         trx2 = {
 
-            "actions": [{"account": "gax.token","name": "transfer",
+            "actions": [{"account": system_config.SYSTEM_TOKEN_ACCOUNT_NAME,"name": "transfer",
                          "authorization": [{"actor": "account2","permission": "active"}],
                          "data": {"from": "account2","to": "account1","quantity": "10.0001 SYS","memo": memo},
                          "compression": "none"}]
@@ -166,7 +166,7 @@ try:
     # Test that irrelavent signature doesn't break read-only txn
     trx3 = {
 
-        "actions": [{"account": "gax.token","name": "transfer",
+        "actions": [{"account": system_config.SYSTEM_TOKEN_ACCOUNT_NAME,"name": "transfer",
                      "authorization": [{"actor": "account1","permission": "active"},{"actor": "account2","permission": "active"}],
                      "data": {"from": "account1","to": "account2","quantity": "10.0001 SYS","memo": memo},
                      "compression": "none"}]

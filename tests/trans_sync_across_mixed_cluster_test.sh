@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ###############################################################
+#TODO: aplication name
 # Test for validating transaction synchronization across cluster nodes.
 # Nodes can be producing or non-producing.
 # -p <producing nodes count>

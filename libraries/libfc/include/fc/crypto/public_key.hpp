@@ -3,13 +3,14 @@
 #include <fc/crypto/elliptic_r1.hpp>
 #include <fc/crypto/elliptic_webauthn.hpp>
 #include <fc/crypto/signature.hpp>
+#include <fc/crypto/system_config.hpp>
 #include <fc/reflect/reflect.hpp>
 #include <fc/reflect/variant.hpp>
 #include <fc/static_variant.hpp>
 
 namespace fc { namespace crypto {
    namespace config {
-      constexpr const char* public_key_legacy_prefix = "GAX";
+      constexpr const char* public_key_legacy_prefix = PUBLIC_KEY_LEGACY_PREFIX;
       constexpr const char* public_key_base_prefix = "PUB";
       constexpr const char* public_key_prefix[] = {
          "K1",

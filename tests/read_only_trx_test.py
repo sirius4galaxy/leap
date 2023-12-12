@@ -5,7 +5,7 @@ import time
 import signal
 import threading
 
-from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletMgr
+from TestHarness import Account, Cluster, ReturnType, TestHelper, Utils, WalletMgr, system_config
 from TestHarness.TestHelper import AppArgs
 
 ###############################################################
@@ -260,10 +260,10 @@ try:
         runReadOnlyTrxAndRpcInParallel("chain", "get_raw_code_and_abi", "account_name", expectedValue=testAccountName, payload = {"account_name":testAccountName})
         runReadOnlyTrxAndRpcInParallel("chain", "get_raw_abi", "account_name", expectedValue=testAccountName, payload = {"account_name":testAccountName})
         runReadOnlyTrxAndRpcInParallel("chain", "get_producers", "rows", payload = {"json":"true","lower_bound":""})
-        runReadOnlyTrxAndRpcInParallel("chain", "get_table_rows", "rows", payload = {"json":"true","code":"gax","scope":"gax","table":"global"})
+        runReadOnlyTrxAndRpcInParallel("chain", "get_table_rows", "rows", payload = {"json":"true","code":f"{system_config.SYSTEM_ACCOUNT_NAME}","scope":f"{system_config.SYSTEM_ACCOUNT_NAME}","table":"global"})
         runReadOnlyTrxAndRpcInParallel("chain", "get_table_by_scope", fieldIn="rows", payload = {"json":"true","table":"noauth"})
-        runReadOnlyTrxAndRpcInParallel("chain", "get_currency_balance", code=200, payload = {"code":"gax.token", "account":testAccountName})
-        runReadOnlyTrxAndRpcInParallel("chain", "get_currency_stats", fieldIn="SYS", payload = {"code":"gax.token", "symbol":"SYS"})
+        runReadOnlyTrxAndRpcInParallel("chain", "get_currency_balance", code=200, payload = {"code":f"{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}", "account":testAccountName})
+        runReadOnlyTrxAndRpcInParallel("chain", "get_currency_stats", fieldIn="SYS", payload = {"code":f"{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}", "symbol":"SYS"})
         runReadOnlyTrxAndRpcInParallel("chain", "get_required_keys", code=400)
         runReadOnlyTrxAndRpcInParallel("chain", "get_transaction_id", code=400, payload = {"ref_block_num":"1"})
         runReadOnlyTrxAndRpcInParallel("chain", "push_block", code=202, payload = {"block":"signed_block"})

@@ -9,6 +9,7 @@ from os import getpid
 from pathlib import Path
 
 ###############################################################
+#TODO: modfy app name
 # validate-dirty-db
 #
 # Test for validating the dirty db flag sticks repeated gaxnod restart attempts

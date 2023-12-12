@@ -9,7 +9,7 @@ import re
 import subprocess
 import sys
 import time
-
+from . import system_config
 args = None
 logFile = None
 
@@ -17,16 +17,16 @@ unlockTimeout = 999999999
 fastUnstakeSystem = './fast.refund/gax.system/gax.system.wasm'
 
 systemAccounts = [
-    'gax.bpay',
-    'gax.msig',
-    'gax.names',
-    'gax.ram',
-    'gax.ramfee',
-    'gax.saving',
-    'gax.stake',
-    'gax.token',
-    'gax.vpay',
-    'gax.rex',
+    system_config.SYSTEM_BPAY_ACCOUNT_NAME,
+    system_config.SYSTEM_MULTISIG_ACCOUNT_NAME,
+    system_config.SYSTEM_NAMES_ACCOUNT_NAME,
+    system_config.SYSTEM_RAM_ACCOUNT_NAME,
+    system_config.SYSTEM_RAMFEE_ACCOUNT_NAME,
+    system_config.SYSTEM_SAVING_ACCOUNT_NAME,
+    system_config.SYSTEM_STAKE_ACCOUNT_NAME,
+    system_config.SYSTEM_TOKEN_ACCOUNT_NAME,
+    system_config.SYSTEM_VPAY_ACCOUNT_NAME,
+    system_config.SYSTEM_REX_ACCOUNT_NAME,
 ]
 
 def jsonArg(a):
@@ -135,7 +135,7 @@ def startProducers(b, e):
 
 def createSystemAccounts():
     for a in systemAccounts:
-        run(args.gaxcli + 'create account gax ' + a + ' ' + args.public_key)
+        run(args.gaxcli + f'create account {system_config.SYSTEM_ACCOUNT_NAME} ' + a + ' ' + args.public_key)
 
 def intToCurrency(i):
     return '%d.%04d %s' % (i // 10000, i % 10000, args.symbol)
@@ -174,10 +174,10 @@ def createStakedAccounts(b, e):
         stakeCpu = stake - stakeNet
         print('%s: total funds=%s, ram=%s, net=%s, cpu=%s, unstaked=%s' % (a['name'], intToCurrency(a['funds']), intToCurrency(ramFunds), intToCurrency(stakeNet), intToCurrency(stakeCpu), intToCurrency(unstaked)))
         assert(funds == ramFunds + stakeNet + stakeCpu + unstaked)
-        retry(args.gaxcli + 'system newaccount --transfer gax %s %s --stake-net "%s" --stake-cpu "%s" --buy-ram "%s"   ' %
+        retry(args.gaxcli + f'system newaccount --transfer {system_config.SYSTEM_ACCOUNT_NAME} %s %s --stake-net "%s" --stake-cpu "%s" --buy-ram "%s"   ' %
             (a['name'], a['pub'], intToCurrency(stakeNet), intToCurrency(stakeCpu), intToCurrency(ramFunds)))
         if unstaked:
-            retry(args.gaxcli + 'transfer gax %s "%s"' % (a['name'], intToCurrency(unstaked)))
+            retry(args.gaxcli + f'transfer {system_config.SYSTEM_ACCOUNT_NAME} %s "%s"' % (a['name'], intToCurrency(unstaked)))
 
 def regProducers(b, e):
     for i in range(b, e):
@@ -198,7 +198,7 @@ def vote(b, e):
         retry(args.gaxcli + 'system voteproducer prods ' + voter + ' ' + prods)
 
 def claimRewards():
-    table = getJsonOutput(args.gaxcli + 'get table gax gax producers -l 100')
+    table = getJsonOutput(args.gaxcli + f'get table {system_config.SYSTEM_ACCOUNT_NAME} {system_config.SYSTEM_ACCOUNT_NAME} producers -l 100')
     times = []
     for row in table['rows']:
         if row['unpaid_blocks'] and not row['last_claim_time']:
@@ -215,7 +215,7 @@ def proxyVotes(b, e):
         retry(args.gaxcli + 'system voteproducer proxy ' + voter + ' ' + proxy)
 
 def updateAuth(account, permission, parent, controller):
-    run(args.gaxcli + 'push action gax updateauth' + jsonArg({
+    run(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} updateauth' + jsonArg({
         'account': account,
         'permission': permission,
         'parent': parent,
@@ -246,11 +246,11 @@ def msigProposeReplaceSystem(proposer, proposalName):
     requestedPermissions = []
     for i in range(firstProducer, firstProducer + numProducers):
         requestedPermissions.append({'actor': accounts[i]['name'], 'permission': 'active'})
-    trxPermissions = [{'actor': 'gax', 'permission': 'active'}]
+    trxPermissions = [{'actor': system_config.SYSTEM_ACCOUNT_NAME, 'permission': 'active'}]
     with open(fastUnstakeSystem, mode='rb') as f:
-        setcode = {'account': 'gax', 'vmtype': 0, 'vmversion': 0, 'code': f.read().hex()}
+        setcode = {'account': system_config.SYSTEM_ACCOUNT_NAME, 'vmtype': 0, 'vmversion': 0, 'code': f.read().hex()}
     run(args.gaxcli + 'multisig propose ' + proposalName + jsonArg(requestedPermissions) +
-        jsonArg(trxPermissions) + 'gax setcode' + jsonArg(setcode) + ' -p ' + proposer)
+        jsonArg(trxPermissions) + f'{system_config.SYSTEM_ACCOUNT_NAME} setcode' + jsonArg(setcode) + ' -p ' + proposer)
 
 def msigApproveReplaceSystem(proposer, proposalName):
     for i in range(firstProducer, firstProducer + numProducers):
@@ -262,7 +262,7 @@ def msigExecReplaceSystem(proposer, proposalName):
     retry(args.gaxcli + 'multisig exec ' + proposer + ' ' + proposalName + ' -p ' + proposer)
 
 def msigReplaceSystem():
-    run(args.gaxcli + 'push action gax buyrambytes' + jsonArg(['gax', accounts[0]['name'], 200000]) + '-p gax')
+    run(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} buyrambytes' + jsonArg([system_config.SYSTEM_ACCOUNT_NAME, accounts[0]['name'], 200000]) + f'-p {system_config.SYSTEM_ACCOUNT_NAME}')
     sleep(1)
     msigProposeReplaceSystem(accounts[0]['name'], 'fast.unstake')
     sleep(1)
@@ -287,81 +287,81 @@ def stepStartWallet():
     startWallet()
     importKeys()
 def stepStartBoot():
-    startNode(0, {'name': 'gax', 'pvt': args.private_key, 'pub': args.public_key})
+    startNode(0, {'name': system_config.SYSTEM_ACCOUNT_NAME, 'pvt': args.private_key, 'pub': args.public_key})
     sleep(10.0)
 def stepInstallSystemContracts():
-    run(args.gaxcli + 'set contract gax.token ' + args.contracts_dir + '/gax.token/')
-    run(args.gaxcli + 'set contract gax.msig ' + args.contracts_dir + '/gax.msig/')
+    run(args.gaxcli + f'set contract {system_config.SYSTEM_TOKEN_ACCOUNT_NAME} ' + args.contracts_dir + f'/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}/')
+    run(args.gaxcli + f'set contract {system_config.SYSTEM_MULTISIG_ACCOUNT_NAME} ' + args.contracts_dir + f'/{system_config.SYSTEM_TOKEN_ACCOUNT_NAME}/')
 def stepCreateTokens():
-    run(args.gaxcli + 'push action gax.token create \'["gax", "10000000000.0000 %s"]\' -p gax.token' % (args.symbol))
+    run(args.gaxcli + f'push action {system_config.SYSTEM_TOKEN_ACCOUNT_NAME} create \'["{system_config.SYSTEM_ACCOUNT_NAME}", "10000000000.0000 %s"]\' -p {system_config.SYSTEM_TOKEN_ACCOUNT_NAME}' % (args.symbol))
     totalAllocation = allocateFunds(0, len(accounts))
-    run(args.gaxcli + 'push action gax.token issue \'["gax", "%s", "memo"]\' -p gax' % intToCurrency(totalAllocation))
+    run(args.gaxcli + f'push action {system_config.SYSTEM_TOKEN_ACCOUNT_NAME} issue \'["{system_config.SYSTEM_ACCOUNT_NAME}", "%s", "memo"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}' % intToCurrency(totalAllocation))
     sleep(1)
 def stepSetSystemContract():
     # All of the protocol upgrade features introduced in v1.8 first require a special protocol
     # feature (codename PREACTIVATE_FEATURE) to be activated and for an updated version of the system
     # contract that makes use of the functionality introduced by that feature to be deployed.
 
-    # activate PREACTIVATE_FEATURE before installing gax.boot
+    # activate PREACTIVATE_FEATURE before installing {system_config.SYSTEM_BOOT_ACCOUNT_NAME}
     retry('curl -X POST http://127.0.0.1:%d' % args.http_port +
         '/v1/producer/schedule_protocol_feature_activations ' +
         '-d \'{"protocol_features_to_activate": ["0ec7e080177b2c02b278d5088611686b49d739925a92d9bfcacd7fc6b74053bd"]}\'')
     sleep(3)
 
-    # install gax.boot which supports the native actions and activate
+    # install {system_config.SYSTEM_BOOT_ACCOUNT_NAME} which supports the native actions and activate
     # action that allows activating desired protocol features prior to
     # deploying a system contract with more features such as gax.bios
     # or gax.system
-    retry(args.gaxcli + 'set contract gax ' + args.contracts_dir + '/gax.boot/')
+    retry(args.gaxcli + f'set contract {system_config.SYSTEM_ACCOUNT_NAME} ' + args.contracts_dir + f'/{system_config.SYSTEM_BOOT_ACCOUNT_NAME}/')
     sleep(3)
 
     # activate remaining features
     # ACTION_RETURN_VALUE
-    retry(args.gaxcli + 'push action gax activate \'["c3a6138c5061cf291310887c0b5c71fcaffeab90d5deb50d3b9e687cead45071"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["c3a6138c5061cf291310887c0b5c71fcaffeab90d5deb50d3b9e687cead45071"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # CONFIGURABLE_WASM_LIMITS2
-    retry(args.gaxcli + 'push action gax activate \'["d528b9f6e9693f45ed277af93474fd473ce7d831dae2180cca35d907bd10cb40"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["d528b9f6e9693f45ed277af93474fd473ce7d831dae2180cca35d907bd10cb40"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # BLOCKCHAIN_PARAMETERS
-    retry(args.gaxcli + 'push action gax activate \'["5443fcf88330c586bc0e5f3dee10e7f63c76c00249c87fe4fbf7f38c082006b4"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["5443fcf88330c586bc0e5f3dee10e7f63c76c00249c87fe4fbf7f38c082006b4"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # GET_SENDER
-    retry(args.gaxcli + 'push action gax activate \'["f0af56d2c5a48d60a4a5b5c903edfb7db3a736a94ed589d0b797df33ff9d3e1d"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["f0af56d2c5a48d60a4a5b5c903edfb7db3a736a94ed589d0b797df33ff9d3e1d"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # FORWARD_SETCODE
-    retry(args.gaxcli + 'push action gax activate \'["2652f5f96006294109b3dd0bbde63693f55324af452b799ee137a81a905eed25"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["2652f5f96006294109b3dd0bbde63693f55324af452b799ee137a81a905eed25"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # ONLY_BILL_FIRST_AUTHORIZER
-    retry(args.gaxcli + 'push action gax activate \'["8ba52fe7a3956c5cd3a656a3174b931d3bb2abb45578befc59f283ecd816a405"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["8ba52fe7a3956c5cd3a656a3174b931d3bb2abb45578befc59f283ecd816a405"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # RESTRICT_ACTION_TO_SELF
-    retry(args.gaxcli + 'push action gax activate \'["ad9e3d8f650687709fd68f4b90b41f7d825a365b02c23a636cef88ac2ac00c43"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["ad9e3d8f650687709fd68f4b90b41f7d825a365b02c23a636cef88ac2ac00c43"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # DISALLOW_EMPTY_PRODUCER_SCHEDULE
-    retry(args.gaxcli + 'push action gax activate \'["68dcaa34c0517d19666e6b33add67351d8c5f69e999ca1e37931bc410a297428"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["68dcaa34c0517d19666e6b33add67351d8c5f69e999ca1e37931bc410a297428"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # FIX_LINKAUTH_RESTRICTION
-    retry(args.gaxcli + 'push action gax activate \'["e0fb64b1085cc5538970158d05a009c24e276fb94e1a0bf6a528b48fbc4ff526"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["e0fb64b1085cc5538970158d05a009c24e276fb94e1a0bf6a528b48fbc4ff526"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # REPLACE_DEFERRED
-    retry(args.gaxcli + 'push action gax activate \'["ef43112c6543b88db2283a2e077278c315ae2c84719a8b25f25cc88565fbea99"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["ef43112c6543b88db2283a2e077278c315ae2c84719a8b25f25cc88565fbea99"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # NO_DUPLICATE_DEFERRED_ID
-    retry(args.gaxcli + 'push action gax activate \'["4a90c00d55454dc5b059055ca213579c6ea856967712a56017487886a4d4cc0f"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["4a90c00d55454dc5b059055ca213579c6ea856967712a56017487886a4d4cc0f"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # ONLY_LINK_TO_EXISTING_PERMISSION
-    retry(args.gaxcli + 'push action gax activate \'["1a99a59d87e06e09ec5b028a9cbb7749b4a5ad8819004365d02dc4379a8b7241"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["1a99a59d87e06e09ec5b028a9cbb7749b4a5ad8819004365d02dc4379a8b7241"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # RAM_RESTRICTIONS
-    retry(args.gaxcli + 'push action gax activate \'["4e7bf348da00a945489b2a681749eb56f5de00b900014e137ddae39f48f69d67"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["4e7bf348da00a945489b2a681749eb56f5de00b900014e137ddae39f48f69d67"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # WEBAUTHN_KEY
-    retry(args.gaxcli + 'push action gax activate \'["4fca8bd82bbd181e714e283f83e1b45d95ca5af40fb89ad3977b653c448f78c2"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["4fca8bd82bbd181e714e283f83e1b45d95ca5af40fb89ad3977b653c448f78c2"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # WTMSIG_BLOCK_SIGNATURES
-    retry(args.gaxcli + 'push action gax activate \'["299dcb6af692324b899b39f16d5a530a33062804e41f09dc97e9f156b4476707"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["299dcb6af692324b899b39f16d5a530a33062804e41f09dc97e9f156b4476707"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # GET_CODE_HASH
-    retry(args.gaxcli + 'push action gax activate \'["bcd2a26394b36614fd4894241d3c451ab0f6fd110958c3423073621a70826e99"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["bcd2a26394b36614fd4894241d3c451ab0f6fd110958c3423073621a70826e99"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # GET_BLOCK_NUM
-    retry(args.gaxcli + 'push action gax activate \'["35c2186cc36f7bb4aeaf4487b36e57039ccf45a9136aa856a5d569ecca55ef2b"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["35c2186cc36f7bb4aeaf4487b36e57039ccf45a9136aa856a5d569ecca55ef2b"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     # CRYPTO_PRIMITIVES
-    retry(args.gaxcli + 'push action gax activate \'["6bcb40a24e49c26d0a60513b6aeb8551d264e4717f306b81a37a5afb3b47cedc"]\' -p gax@active')
+    retry(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} activate \'["6bcb40a24e49c26d0a60513b6aeb8551d264e4717f306b81a37a5afb3b47cedc"]\' -p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     sleep(1)
 
     # install gax.system latest version
-    retry(args.gaxcli + 'set contract gax ' + args.contracts_dir + '/gax.system/')
+    retry(args.gaxcli + f'set contract {system_config.SYSTEM_ACCOUNT_NAME} ' + args.contracts_dir + '/gax.system/')
     # setpriv is only available after gax.system is installed
-    run(args.gaxcli + 'push action gax setpriv' + jsonArg(['gax.msig', 1]) + '-p gax@active')
+    run(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} setpriv' + jsonArg([system_config.SYSTEM_MULTISIG_ACCOUNT_NAME, 1]) + f'-p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     sleep(3)
 
 def stepInitSystemContract():
-    run(args.gaxcli + 'push action gax init' + jsonArg(['0', '4,' + args.symbol]) + '-p gax@active')
+    run(args.gaxcli + f'push action {system_config.SYSTEM_ACCOUNT_NAME} init' + jsonArg(['0', '4,' + args.symbol]) + f'-p {system_config.SYSTEM_ACCOUNT_NAME}@active')
     sleep(1)
 def stepCreateStakedAccounts():
     createStakedAccounts(0, len(accounts))
@@ -380,9 +380,9 @@ def stepVote():
 def stepProxyVotes():
     proxyVotes(0, 0 + args.num_voters)
 def stepResign():
-    resign('gax', 'gax.prods')
+    resign(system_config.SYSTEM_ACCOUNT_NAME, system_config.SYSTEM_PRODUCERS_ACCOUNT_NAME)
     for a in systemAccounts:
-        resign(a, 'gax')
+        resign(a, system_config.SYSTEM_ACCOUNT_NAME)
 def stepTransfer():
     while True:
         randomTransfer(0, args.num_senders)
@@ -397,7 +397,7 @@ commands = [
     ('k', 'kill',               stepKillAll,                True,    "Kill all gaxnod and gaxkey processes"),
     ('w', 'wallet',             stepStartWallet,            True,    "Start gaxkey, create wallet, fill with keys"),
     ('b', 'boot',               stepStartBoot,              True,    "Start boot node"),
-    ('s', 'sys',                createSystemAccounts,       True,    "Create system accounts (gax.*)"),
+    ('s', 'sys',                createSystemAccounts,       True,    "Create system accounts ({system_config.SYSTEM_ACCOUNT_NAME}.*)"),
     ('c', 'contracts',          stepInstallSystemContracts, True,    "Install system contracts (token, msig)"),
     ('t', 'tokens',             stepCreateTokens,           True,    "Create tokens"),
     ('S', 'sys-contract',       stepSetSystemContract,      True,    "Set system contract"),
@@ -408,7 +408,7 @@ commands = [
     ('v', 'vote',               stepVote,                   True,    "Vote for producers"),
     ('R', 'claim',              claimRewards,               True,    "Claim rewards"),
     ('x', 'proxy',              stepProxyVotes,             True,    "Proxy votes"),
-    ('q', 'resign',             stepResign,                 True,    "Resign gax"),
+    ('q', 'resign',             stepResign,                 True,    "Resign {system_config.SYSTEM_ACCOUNT_NAME}"),
     ('m', 'msg-replace',        msigReplaceSystem,          False,   "Replace system contract using msig"),
     ('X', 'xfer',               stepTransfer,               False,   "Random transfer tokens (infinite loop)"),
     ('l', 'log',                stepLog,                    True,    "Show tail of node's log"),
