@@ -417,7 +417,7 @@ BOOST_AUTO_TEST_CASE( blacklist_onerror ) { try {
    );
 
    BOOST_CHECK_EXCEPTION( tester1.chain->produce_blocks(), fc::exception,
-                          fc_exception_message_is("action 'gax::onerror' is on the action blacklist")
+                          fc_exception_message_is("action 'uni::onerror' is on the action blacklist")
                         );
 
 } FC_LOG_AND_RETHROW() }

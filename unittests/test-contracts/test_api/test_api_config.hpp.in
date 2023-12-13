@@ -1,1 +1,1 @@
-#define SYSTEM_ACCOUNT "gax"_n
+#define SYSTEM_ACCOUNT "uni"_n

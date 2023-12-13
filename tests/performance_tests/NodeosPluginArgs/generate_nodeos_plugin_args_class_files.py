@@ -2,7 +2,9 @@
 
 import re
 import subprocess
+from pathlib import Path
 
+import system_config
 """
 TODO: modify node name
 The purpose of this script is to attempt to generate *PluginArgs.py files, containing respective dataclass objects,
@@ -53,7 +55,7 @@ Note:
 
 
 def main():
-    result = subprocess.run(["../../../bin/gaxnod", "--help"], stdout=subprocess.PIPE, universal_newlines=True)
+    result = subprocess.run([f"../../../bin/{system_config.APP_NODE_NAME}", "--help"], stdout=subprocess.PIPE, universal_newlines=True)
 
     myStr = result.stdout
     myStr = myStr.rstrip("\n")

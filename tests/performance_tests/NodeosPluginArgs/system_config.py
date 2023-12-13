@@ -1,0 +1,1 @@
+APP_NODE_NAME = "uninod"
