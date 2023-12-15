@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.8 )
 project(unittest_contracts)
-
+include(config.cmake)
 
 if( EOSIO_COMPILE_TEST_CONTRACTS )
     set(CMAKE_BUILD_TYPE "Release")

@@ -37,6 +37,18 @@ struct act_sig {
 };
 FC_REFLECT(act_sig, (sig) )
 
+string pubkey_prefix_replace(const char *my_other){
+   string test_str = my_other;
+   size_t pos = 0;
+   while( true ){
+      pos = test_str.find("GAX");
+      if( pos > test_str.size() ){
+         break;
+      }
+      test_str.replace(pos, strlen(PUBLIC_KEY_LEGACY_PREFIX), PUBLIC_KEY_LEGACY_PREFIX);
+   }
+   return test_str;
+}
 
 BOOST_AUTO_TEST_SUITE(abi_tests)
 
@@ -757,8 +769,8 @@ BOOST_AUTO_TEST_CASE(general)
       }]
     }
    )=====";
-
-   auto var = fc::json::from_string(my_other);
+   string test_str = pubkey_prefix_replace(my_other);
+   auto var = fc::json::from_string(test_str);
    verify_byte_round_trip_conversion(abi_serializer{std::move(abi), abi_serializer::create_yield_function( max_serialization_time )}, "A", var);
 
 } FC_LOG_AND_RETHROW() }
@@ -904,8 +916,8 @@ BOOST_AUTO_TEST_CASE(updateauth_test)
      }
    }
    )=====";
-
-   auto var = fc::json::from_string(test_data);
+   string test_str = pubkey_prefix_replace( test_data );
+   auto var = fc::json::from_string(test_str);
 
    auto updauth = var.as<updateauth>();
    BOOST_TEST(name("updauth.acct") == updauth.account);
@@ -914,9 +926,13 @@ BOOST_AUTO_TEST_CASE(updateauth_test)
    BOOST_TEST(2147483145u == updauth.auth.threshold);
 
    BOOST_TEST_REQUIRE(2u == updauth.auth.keys.size());
-   BOOST_TEST("GAX65rXebLhtk2aTTzP4e9x1AQZs7c5NNXJp89W8R3HyaA6Zyd4im" == updauth.auth.keys[0].key.to_string());
+   const char* temp1 = "GAX65rXebLhtk2aTTzP4e9x1AQZs7c5NNXJp89W8R3HyaA6Zyd4im";
+   test_str = pubkey_prefix_replace(temp1);
+   BOOST_TEST(test_str == updauth.auth.keys[0].key.to_string());
    BOOST_TEST(57005u == updauth.auth.keys[0].weight);
-   BOOST_TEST("GAX5eVr9TVnqwnUBNwf9kwMTbrHvX5aPyyEG97dz2b2TNeqWRzbJf" == updauth.auth.keys[1].key.to_string());
+   const char* temp2 = "GAX5eVr9TVnqwnUBNwf9kwMTbrHvX5aPyyEG97dz2b2TNeqWRzbJf";
+   test_str = pubkey_prefix_replace(temp2);
+   BOOST_TEST(test_str == updauth.auth.keys[1].key.to_string());
    BOOST_TEST(57605u == updauth.auth.keys[1].weight);
 
    BOOST_TEST_REQUIRE(2u == updauth.auth.accounts.size());
@@ -1008,8 +1024,8 @@ BOOST_AUTO_TEST_CASE(newaccount_test)
         "waits" : []
      }   }
    )=====";
-
-   auto var = fc::json::from_string(test_data);
+   string test_str = pubkey_prefix_replace( test_data );
+   auto var = fc::json::from_string(test_str);
 
    auto newacct = var.as<newaccount>();
    BOOST_TEST(name("newacct.crtr") == newacct.creator);
@@ -1018,9 +1034,13 @@ BOOST_AUTO_TEST_CASE(newaccount_test)
    BOOST_TEST(2147483145u == newacct.owner.threshold);
 
    BOOST_TEST_REQUIRE(2u == newacct.owner.keys.size());
-   BOOST_TEST("GAX65rXebLhtk2aTTzP4e9x1AQZs7c5NNXJp89W8R3HyaA6Zyd4im" == newacct.owner.keys[0].key.to_string());
+   const char* temp1 = "GAX65rXebLhtk2aTTzP4e9x1AQZs7c5NNXJp89W8R3HyaA6Zyd4im";
+   string test_str1 = pubkey_prefix_replace(temp1);
+   BOOST_TEST(test_str1 == newacct.owner.keys[0].key.to_string());
    BOOST_TEST(57005u == newacct.owner.keys[0].weight);
-   BOOST_TEST("GAX5eVr9TVnqwnUBNwf9kwMTbrHvX5aPyyEG97dz2b2TNeqWRzbJf" == newacct.owner.keys[1].key.to_string());
+   const char* temp2 = "GAX5eVr9TVnqwnUBNwf9kwMTbrHvX5aPyyEG97dz2b2TNeqWRzbJf";
+   string test_str2 = pubkey_prefix_replace(temp2);
+   BOOST_TEST(test_str2 == newacct.owner.keys[1].key.to_string());
    BOOST_TEST(57605u == newacct.owner.keys[1].weight);
 
    BOOST_TEST_REQUIRE(2u == newacct.owner.accounts.size());
@@ -1034,9 +1054,9 @@ BOOST_AUTO_TEST_CASE(newaccount_test)
    BOOST_TEST(2146483145u == newacct.active.threshold);
 
    BOOST_TEST_REQUIRE(2u == newacct.active.keys.size());
-   BOOST_TEST("GAX65rXebLhtk2aTTzP4e9x1AQZs7c5NNXJp89W8R3HyaA6Zyd4im" == newacct.active.keys[0].key.to_string());
+   BOOST_TEST(test_str1 == newacct.active.keys[0].key.to_string());
    BOOST_TEST(57005u == newacct.active.keys[0].weight);
-   BOOST_TEST("GAX5eVr9TVnqwnUBNwf9kwMTbrHvX5aPyyEG97dz2b2TNeqWRzbJf" == newacct.active.keys[1].key.to_string());
+   BOOST_TEST(test_str2 == newacct.active.keys[1].key.to_string());
    BOOST_TEST(57605u == newacct.active.keys[1].weight);
 
    BOOST_TEST_REQUIRE(2u == newacct.active.accounts.size());

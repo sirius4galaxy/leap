@@ -84,30 +84,17 @@
    set( KEY_STORE_EXECUTABLE_NAME unikey )
    set( LEAP_UTIL_EXECUTABLE_NAME uni-util )
    set( ROOT_EOSIO_ROOT_KEY "UNI6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV")
-   set( ROOT_CORE_SYMBOL_NAME "UN" )
    ```
-
+   
 7. #### 单元测试合约的配置
 
    ```c++
-   //这个配置文件用来配置延时交易测试合约
-   deferred_test_config.hpp.in
-   //默认配置项
-   #define NOTIFY_ACTION "uni::onerror"
-   //代理合约配置文件
-   proxy_config.hpp.in
-   //默认配置项
-   #define TOKEN_ACCOUNT "uni.token"_n
-   //api合约配置文件
-   test_api_config.hpp.in
-   //默认配置项
-   #define SYSTEM_ACCOUNT "uni"_n
-   //失败处理合约配置文件
-   reject_all_config.hpp.in
-   //默认配置项
-   #define SYSTEM_ACCOUNT "uni"_n
+   //contracts合约配置文件
+   config.cmake
+   //test-contracts合约配置文件
+   config.cmake
    ```
-
+   
 8. #### 配置文件的一致性
 
    ```shell
@@ -117,11 +104,9 @@
 9. ### 系统合约和CDT相关配置
 
    ```c++
-   //系统合约eosio.system里面有静态指定的系统账户名称，需要修改成跟上述名称一致
-   eosio.system.hpp
-   rex.cpp
-   //CDT需要配置相应的应用程序名称
+   //系统合约直接使用上述contracts目录下的合约。
+   //CDT直接使用v4.0.0版本就行。
    ```
-
+   
    
 

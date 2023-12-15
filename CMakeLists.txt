@@ -161,7 +161,7 @@ endif()
 include(utils)
 
 if ("${CORE_SYMBOL_NAME}" STREQUAL "")
-	set( CORE_SYMBOL_NAME ${ROOT_CORE_SYMBOL_NAME} )
+	set( CORE_SYMBOL_NAME "SYS" )
 endif()
 string(TOUPPER ${CORE_SYMBOL_NAME} CORE_SYMBOL_NAME)
 
@@ -175,8 +175,9 @@ message( STATUS "Using '${CORE_SYMBOL_NAME}' as CORE symbol name" )
 if ("${EOSIO_ROOT_KEY}" STREQUAL "")
 	set(EOSIO_ROOT_KEY ${ROOT_EOSIO_ROOT_KEY})
 endif()
+string(TOLOWER ${SYSTEM_ACCOUNT_NAME} SYSTEM_ACCOUNT_NAME)
 
-message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for 'gax' account" )
+message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for '${SYSTEM_ACCOUNT_NAME}' account" )
 
 find_package( Gperftools QUIET )
 if( GPERFTOOLS_FOUND )

@@ -2,7 +2,6 @@
 
 #include <eosio/eosio.hpp>
 #include <vector>
-#include "deferred_test_config.hpp"
 
 class [[eosio::contract]] deferred_test : public eosio::contract {
 public:

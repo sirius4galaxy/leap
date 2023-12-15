@@ -12,7 +12,6 @@
 #include "test_print.cpp"
 #include "test_transaction.cpp"
 #include "test_types.cpp"
-#include "test_api_config.hpp"
 
 name global_receiver;
 

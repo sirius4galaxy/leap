@@ -1,5 +1,4 @@
 #include "proxy.hpp"
-#include "proxy_config.hpp"
 #include <eosio/transaction.hpp>
 
 using namespace eosio;

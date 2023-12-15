@@ -116,6 +116,19 @@ static constexpr uint64_t name_suffix( name nv ) {
    return ( ((n & mask) << shift) + (thirteenth_character << (shift-1)) );
 }
 
+string pubkey_prefix_replace(const char *my_other){
+   string test_str = my_other;
+   size_t pos = 0;
+   while( true ){
+      pos = test_str.find("GAX");
+      if( pos > test_str.size() ){
+         break;
+      }
+      test_str.replace(pos, strlen(PUBLIC_KEY_LEGACY_PREFIX), PUBLIC_KEY_LEGACY_PREFIX);
+   }
+   return test_str;
+}
+
 BOOST_AUTO_TEST_SUITE(misc_tests)
 
 BOOST_AUTO_TEST_CASE(reverse_endian_tests)
@@ -1253,7 +1266,9 @@ BOOST_AUTO_TEST_CASE(named_thread_pool_test) {
 
 BOOST_AUTO_TEST_CASE(public_key_from_hash) {
    auto private_key_string = std::string("5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-   auto expected_public_key = std::string("GAX6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV");
+   const char* temp1 = "GAX6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV";
+   string test_str1 = pubkey_prefix_replace(temp1);
+   auto expected_public_key = std::string(test_str1);
    auto test_private_key = fc::crypto::private_key(private_key_string);
    auto test_public_key = test_private_key.get_public_key();
    fc::crypto::public_key eos_pk(expected_public_key);

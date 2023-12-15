@@ -282,6 +282,18 @@ bool is_tx_cpu_usage_exceeded(const tx_cpu_usage_exceeded& e) { return true; }
 bool is_block_cpu_usage_exceeded(const block_cpu_usage_exceeded& e) { return true; }
 bool is_deadline_exception(const deadline_exception& e) { return true; }
 
+string pubkey_prefix_replaces(const char *my_other){
+   string test_str = my_other;
+   size_t pos = 0;
+   while( true ){
+      pos = test_str.find("GAX");
+      if( pos > test_str.size() ){
+         break;
+      }
+      test_str.replace(pos, strlen(PUBLIC_KEY_LEGACY_PREFIX), PUBLIC_KEY_LEGACY_PREFIX);
+   }
+   return test_str;
+}
 /*
  * register test suite `api_tests`
  */
@@ -2775,13 +2787,14 @@ BOOST_FIXTURE_TEST_CASE(permission_tests, TESTER) { try {
       })
    );
    BOOST_CHECK_EQUAL( int64_t(1), get_result_int64() );
-
+   const char* temp1 = "GAX7GfRtyDWWgxV88a5TRaYY59XmHptyfjsFmHHfioGNJtPjpSmGX";
+   string test_str1 = pubkey_prefix_replaces(temp1);
    CALL_TEST_FUNCTION( *this, "test_permission", "check_authorization",
       fc::raw::pack( check_auth {
          .account    = "testapi"_n,
          .permission = "active"_n,
          .pubkeys    = {
-            public_key_type(string("GAX7GfRtyDWWgxV88a5TRaYY59XmHptyfjsFmHHfioGNJtPjpSmGX"))
+            public_key_type(string(test_str1))
          }
       })
    );
@@ -2793,7 +2806,7 @@ BOOST_FIXTURE_TEST_CASE(permission_tests, TESTER) { try {
          .permission = "active"_n,
          .pubkeys    = {
             get_public_key("testapi"_n, "active"),
-            public_key_type(string("GAX7GfRtyDWWgxV88a5TRaYY59XmHptyfjsFmHHfioGNJtPjpSmGX"))
+            public_key_type(string(test_str1))
          }
       })
    );

@@ -1,4 +1,3 @@
-#include "reject_all_config.hpp"
 #include <eosio/eosio.hpp>
 
 using namespace eosio;
