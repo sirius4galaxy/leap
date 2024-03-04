@@ -2,7 +2,7 @@
 #include <eosio/chain/resource_limits.hpp>
 #include <eosio/chain/generated_transaction_object.hpp>
 #include <eosio/testing/tester.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #include <Runtime/Runtime.h>
 
 #include <fc/variant_object.hpp>
@@ -732,12 +732,12 @@ BOOST_AUTO_TEST_CASE( fix_linkauth_restriction ) { try {
          fc_exception_message_is(std::string("Cannot link eosio::") + std::string(type) + std::string(" to a minimum permission"))
       );
    };
-
-   validate_disallow("eosio", "linkauth");
-   validate_disallow("eosio", "unlinkauth");
-   validate_disallow("eosio", "deleteauth");
-   validate_disallow("eosio", "updateauth");
-   validate_disallow("eosio", "canceldelay");
+   name sname(SYSTEM_ACCOUNT_NAME);
+   validate_disallow(sname.to_string().c_str(), "linkauth");
+   validate_disallow(sname.to_string().c_str(), "unlinkauth");
+   validate_disallow(sname.to_string().c_str(), "deleteauth");
+   validate_disallow(sname.to_string().c_str(), "updateauth");
+   validate_disallow(sname.to_string().c_str(), "canceldelay");
 
    validate_disallow("currency", "linkauth");
    validate_disallow("currency", "unlinkauth");
@@ -760,11 +760,11 @@ BOOST_AUTO_TEST_CASE( fix_linkauth_restriction ) { try {
             ("requirement", "first"));
    };
 
-   validate_disallow("eosio", "linkauth");
-   validate_disallow("eosio", "unlinkauth");
-   validate_disallow("eosio", "deleteauth");
-   validate_disallow("eosio", "updateauth");
-   validate_disallow("eosio", "canceldelay");
+   validate_disallow(sname.to_string().c_str(), "linkauth");
+   validate_disallow(sname.to_string().c_str(), "unlinkauth");
+   validate_disallow(sname.to_string().c_str(), "deleteauth");
+   validate_disallow(sname.to_string().c_str(), "updateauth");
+   validate_disallow(sname.to_string().c_str(), "canceldelay");
 
    validate_allowed("currency", "linkauth");
    validate_allowed("currency", "unlinkauth");
@@ -1616,7 +1616,7 @@ BOOST_AUTO_TEST_CASE( producer_schedule_change_extension_test ) { try {
       // re-sign the bad block
       auto header_bmroot = digest_type::hash( std::make_pair( bad_block->digest(), remote.control->head_block_state()->blockroot_merkle ) );
       auto sig_digest = digest_type::hash( std::make_pair(header_bmroot, remote.control->head_block_state()->pending_schedule.schedule_hash) );
-      bad_block->producer_signature = remote.get_private_key("eosio"_n, "active").sign(sig_digest);
+      bad_block->producer_signature = remote.get_private_key(SYSTEM_ACCOUNT_NAME, "active").sign(sig_digest);
 
       // ensure it is rejected as an unknown extension
       BOOST_REQUIRE_EXCEPTION(
@@ -1635,7 +1635,7 @@ BOOST_AUTO_TEST_CASE( producer_schedule_change_extension_test ) { try {
       // re-sign the bad block
       auto header_bmroot = digest_type::hash( std::make_pair( bad_block->digest(), remote.control->head_block_state()->blockroot_merkle ) );
       auto sig_digest = digest_type::hash( std::make_pair(header_bmroot, remote.control->head_block_state()->pending_schedule.schedule_hash) );
-      bad_block->producer_signature = remote.get_private_key("eosio"_n, "active").sign(sig_digest);
+      bad_block->producer_signature = remote.get_private_key(SYSTEM_ACCOUNT_NAME, "active").sign(sig_digest);
 
       // ensure it is accepted (but rejected because it doesn't match expected state)
       BOOST_REQUIRE_EXCEPTION(
@@ -1663,7 +1663,7 @@ BOOST_AUTO_TEST_CASE( producer_schedule_change_extension_test ) { try {
       // re-sign the bad block
       auto header_bmroot = digest_type::hash( std::make_pair( bad_block->digest(), remote.control->head_block_state()->blockroot_merkle ) );
       auto sig_digest = digest_type::hash( std::make_pair(header_bmroot, remote.control->head_block_state()->pending_schedule.schedule_hash) );
-      bad_block->producer_signature = remote.get_private_key("eosio"_n, "active").sign(sig_digest);
+      bad_block->producer_signature = remote.get_private_key(SYSTEM_ACCOUNT_NAME, "active").sign(sig_digest);
 
       // ensure it is rejected because it doesn't match expected state (but the extention was accepted)
       BOOST_REQUIRE_EXCEPTION(
@@ -1682,7 +1682,7 @@ BOOST_AUTO_TEST_CASE( producer_schedule_change_extension_test ) { try {
       // re-sign the bad block
       auto header_bmroot = digest_type::hash( std::make_pair( bad_block->digest(), remote.control->head_block_state()->blockroot_merkle ) );
       auto sig_digest = digest_type::hash( std::make_pair(header_bmroot, remote.control->head_block_state()->pending_schedule.schedule_hash) );
-      bad_block->producer_signature = remote.get_private_key("eosio"_n, "active").sign(sig_digest);
+      bad_block->producer_signature = remote.get_private_key(SYSTEM_ACCOUNT_NAME, "active").sign(sig_digest);
 
       // ensure it is rejected because the new_producers field is not null
       BOOST_REQUIRE_EXCEPTION(
@@ -1706,7 +1706,7 @@ BOOST_AUTO_TEST_CASE( wtmsig_block_signing_inflight_legacy_test ) { try {
 
    // activate the feature, and start an in-flight producer schedule change with the legacy format
    c.preactivate_protocol_features( {*d} );
-   vector<legacy::producer_key> sched = {{"eosio"_n, c.get_public_key("eosio"_n, "bsk")}};
+   vector<legacy::producer_key> sched = {{SYSTEM_ACCOUNT_NAME, c.get_public_key(SYSTEM_ACCOUNT_NAME, "bsk")}};
    c.push_action(config::system_account_name, "setprods"_n, config::system_account_name, fc::mutable_variant_object()("schedule", sched));
    c.produce_block();
 
@@ -1721,7 +1721,7 @@ BOOST_AUTO_TEST_CASE( wtmsig_block_signing_inflight_legacy_test ) { try {
    BOOST_REQUIRE_EXCEPTION( c.produce_block(), no_block_signatures, fc_exception_message_is( "Signer returned no signatures" ));
    c.control->abort_block();
 
-   c.block_signing_private_keys.emplace(get_public_key("eosio"_n, "bsk"), get_private_key("eosio"_n, "bsk"));
+   c.block_signing_private_keys.emplace(get_public_key(SYSTEM_ACCOUNT_NAME, "bsk"), get_private_key(SYSTEM_ACCOUNT_NAME, "bsk"));
    c.produce_block();
 
 } FC_LOG_AND_RETHROW() }
@@ -1740,7 +1740,7 @@ BOOST_AUTO_TEST_CASE( wtmsig_block_signing_inflight_extension_test ) { try {
    c.produce_block();
 
    // start an in-flight producer schedule change before the activation is availble to header only validators
-   vector<legacy::producer_key> sched = {{"eosio"_n, c.get_public_key("eosio"_n, "bsk")}};
+   vector<legacy::producer_key> sched = {{SYSTEM_ACCOUNT_NAME, c.get_public_key(SYSTEM_ACCOUNT_NAME, "bsk")}};
    c.push_action(config::system_account_name, "setprods"_n, config::system_account_name, fc::mutable_variant_object()("schedule", sched));
    c.produce_block();
 
@@ -1757,7 +1757,7 @@ BOOST_AUTO_TEST_CASE( wtmsig_block_signing_inflight_extension_test ) { try {
    BOOST_REQUIRE_EXCEPTION( c.produce_block(), no_block_signatures, fc_exception_message_is( "Signer returned no signatures" ));
    c.control->abort_block();
 
-   c.block_signing_private_keys.emplace(get_public_key("eosio"_n, "bsk"), get_private_key("eosio"_n, "bsk"));
+   c.block_signing_private_keys.emplace(get_public_key(SYSTEM_ACCOUNT_NAME, "bsk"), get_private_key(SYSTEM_ACCOUNT_NAME, "bsk"));
    c.produce_block();
 
 } FC_LOG_AND_RETHROW() }
@@ -1839,14 +1839,14 @@ BOOST_AUTO_TEST_CASE( get_parameters_packed_test ) { try {
 
    // ensure it now resolves
    c.set_code( config::system_account_name, import_get_parameters_packed_wast );
-   
+
    // ensure it can be called
    auto action_priv = action( {//vector of permission_level
-                                 { config::system_account_name, 
+                                 { config::system_account_name,
                                     permission_name("active") }
                               },
-                              config::system_account_name, 
-                              action_name(), 
+                              config::system_account_name,
+                              action_name(),
                               {} );
    BOOST_REQUIRE_EQUAL(c.push_action(std::move(action_priv), config::system_account_name.to_uint64_t()), c.success());
 
@@ -1858,11 +1858,11 @@ BOOST_AUTO_TEST_CASE( get_parameters_packed_test ) { try {
 
    c.set_code( alice_account, import_get_parameters_packed_wast );
    auto action_non_priv = action( {//vector of permission_level
-                                    { alice_account, 
+                                    { alice_account,
                                       permission_name("active") }
                                   },
-                                  alice_account, 
-                                  action_name(), 
+                                  alice_account,
+                                  action_name(),
                                   {} );
    //ensure priviledged intrinsic cannot be called by regular account
    BOOST_REQUIRE_EQUAL(c.push_action(std::move(action_non_priv), alice_account.to_uint64_t()),
@@ -1901,14 +1901,14 @@ BOOST_AUTO_TEST_CASE( set_parameters_packed_test ) { try {
 
    // ensure it now resolves
    c.set_code( config::system_account_name, import_set_parameters_packed_wast );
-   
+
    // ensure it can be called
    auto action_priv = action( {//vector of permission_level
-                                 { config::system_account_name, 
+                                 { config::system_account_name,
                                     permission_name("active") }
                               },
-                              config::system_account_name, 
-                              action_name(), 
+                              config::system_account_name,
+                              action_name(),
                               {} );
    BOOST_REQUIRE_EQUAL(c.push_action(std::move(action_priv), config::system_account_name.to_uint64_t()), c.success());
 
@@ -1920,11 +1920,11 @@ BOOST_AUTO_TEST_CASE( set_parameters_packed_test ) { try {
 
    c.set_code( alice_account, import_set_parameters_packed_wast );
    auto action_non_priv = action( {//vector of permission_level
-                                    { alice_account, 
+                                    { alice_account,
                                       permission_name("active") }
                                   },
-                                  alice_account, 
-                                  action_name(), 
+                                  alice_account,
+                                  action_name(),
                                   {} );
    //ensure priviledged intrinsic cannot be called by regular account
    BOOST_REQUIRE_EQUAL(c.push_action(std::move(action_non_priv), alice_account.to_uint64_t()),

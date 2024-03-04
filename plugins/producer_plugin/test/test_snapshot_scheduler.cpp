@@ -5,6 +5,7 @@
 #include <eosio/producer_plugin/producer_plugin.hpp>
 #include <eosio/producer_plugin/snapshot_db_json.hpp>
 #include <eosio/testing/tester.hpp>
+#include <eosio/chain/system_config.hpp>
 namespace {
 
 using namespace eosio;
@@ -65,9 +66,10 @@ BOOST_AUTO_TEST_CASE(snapshot_scheduler_test) {
 
          std::thread app_thread([&]() {
             fc::logger::get(DEFAULT_LOGGER).set_log_level(fc::log_level::debug);
+            name sname(SYSTEM_ACCOUNT_NAME);
             std::vector<const char*> argv =
                   {"test", "--data-dir", temp.c_str(), "--config-dir", temp.c_str(),
-                   "-p", "eosio", "-e", "--disable-subjective-billing=true"};
+                   "-p", sname.to_string().c_str(), "-e", "--disable-subjective-billing=true"};
             appbase::app().initialize<chain_plugin, producer_plugin>(argv.size(), (char**) &argv[0]);
             appbase::app().startup();
             plugin_promise.set_value(
@@ -99,11 +101,11 @@ BOOST_AUTO_TEST_CASE(snapshot_scheduler_test) {
                BOOST_REQUIRE(it != snapshot_requests.end());
                auto& pending = it->pending_snapshots;
                if (pending.size()==1) {
-                  BOOST_CHECK_EQUAL(9, pending.begin()->head_block_num);   
+                  BOOST_CHECK_EQUAL(9, pending.begin()->head_block_num);
                }
             }
          });
-       
+
          producer_plugin::snapshot_request_information sri1 = {.block_spacing = 8, .start_block_num = 1, .end_block_num = 300000, .snapshot_description = "Example of recurring snapshot 1"};
          producer_plugin::snapshot_request_information sri2 = {.block_spacing = 5000, .start_block_num = 100000, .end_block_num = 300000, .snapshot_description = "Example of recurring snapshot 2 that will never happen"};
          producer_plugin::snapshot_request_information sri3 = {.block_spacing = 2, .start_block_num = 0, .end_block_num = 3, .snapshot_description = "Example of recurring snapshot 3 that will expire"};

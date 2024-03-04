@@ -4,13 +4,13 @@ import random
 import signal
 import time
 
-from TestHarness import Cluster, Node, ReturnType, TestHelper, Utils, WalletMgr
+from TestHarness import Cluster, Node, ReturnType, TestHelper, Utils, WalletMgr, system_config
 from TestHarness.Node import BlockType
 
 ###############################################################
 # large-lib-test
 #
-# Test LIB in a network will advance when an invalid larger LIB 
+# Test LIB in a network will advance when an invalid larger LIB
 # than current one is received from a speculative node.
 #
 ###############################################################
@@ -92,7 +92,7 @@ try:
 
     Print ("Relaunch all cluster nodes instances.")
     # -e -p eosio for resuming production, skipGenesis=False for launch the same chain as before
-    relaunchNode(producingNode, chainArg="-e -p eosio --sync-fetch-span 5 ", skipGenesis=False)
+    relaunchNode(producingNode, chainArg=f"-e -p {system_config.SYSTEM_ACCOUNT_NAME} --sync-fetch-span 5 ", skipGenesis=False)
     relaunchNode(speculativeNode1, chainArg="--sync-fetch-span 5 ")
     relaunchNode(speculativeNode2, chainArg="--sync-fetch-span 5 ", skipGenesis=False)
 

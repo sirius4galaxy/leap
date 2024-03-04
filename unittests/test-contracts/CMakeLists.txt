@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.8 )
 project(test_contracts)
-
+include( ${CMAKE_CURRENT_SOURCE_DIR}/config.cmake )
 if( EOSIO_COMPILE_TEST_CONTRACTS )
    set(EOSIO_WASM_OLD_BEHAVIOR "Off")
    if(USE_EOSIO_CDT_1_7_X OR USE_EOSIO_CDT_1_8_X)

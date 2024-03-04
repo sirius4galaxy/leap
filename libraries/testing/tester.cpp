@@ -12,6 +12,10 @@
 #include <fstream>
 
 #include <contracts.hpp>
+#include <contracts.hpp>
+#if defined(EOSIO_EOS_VM_RUNTIME_ENABLED) || defined(EOSIO_EOS_VM_JIT_RUNTIME_ENABLED)
+#include <eosio/vm/signals.hpp>
+#endif//AMAX_EOS_VM_RUNTIME_ENABLED
 
 namespace bio = boost::iostreams;
 
@@ -282,6 +286,19 @@ namespace eosio { namespace testing {
             expected_chain_id = block_log::extract_chain_id( cfg.blocks_dir, retained_dir );
          }
       }
+
+#if defined(EOSIO_EOS_VM_RUNTIME_ENABLED) || defined(EOSIO_EOS_VM_JIT_RUNTIME_ENABLED)
+      if (cfg.wasm_runtime == chain::wasm_interface::vm_type::eos_vm || cfg.wasm_runtime == chain::wasm_interface::vm_type::eos_vm_jit) {
+         eosio::vm::setup_signal_handler();
+         struct sigaction vm_signal_handler = {};
+         sigaction(SIGBUS, NULL, &vm_signal_handler);
+         if (vm_signal_handler.sa_sigaction != &eosio::vm::signal_handler) {
+            // if multi test cases are run, the signal handler of eos-vm will be overwrite by boost test by second case,
+            // so it must be setup again here.
+            eosio::vm::setup_signal_handler_impl();
+         }
+      }
+#endif//EOSIO_EOS_VM_RUNTIME_ENABLED
 
       control.reset( new controller(cfg, std::move(pfs), *expected_chain_id) );
       control->add_indices();

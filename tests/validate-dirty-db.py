@@ -9,9 +9,10 @@ from os import getpid
 from pathlib import Path
 
 ###############################################################
+#TODO: modfy app name
 # validate-dirty-db
 #
-# Test for validating the dirty db flag sticks repeated nodeos restart attempts
+# Test for validating the dirty db flag sticks repeated gaxnod restart attempts
 #
 ###############################################################
 
@@ -39,23 +40,23 @@ Utils.Debug=debug
 testSuccessful=False
 
 def runNodeosAndGetOutput(myTimeout=3, nodeosLogPath=f"{Utils.TestLogRoot}"):
-    """Startup nodeos, wait for timeout (before forced shutdown) and collect output. Stdout, stderr and return code are returned in a dictionary."""
-    Print("Launching nodeos process.")
-    cmd=f"programs/nodeos/nodeos --config-dir etc/eosio/node_bios --data-dir {nodeosLogPath}/node_bios --verbose-http-errors --http-validate-host=false --resource-monitor-not-shutdown-on-threshold-exceeded"
+    """Startup gaxnod, wait for timeout (before forced shutdown) and collect output. Stdout, stderr and return code are returned in a dictionary."""
+    Print("Launching gaxnod process.")
+    cmd=f"programs/gaxnod/gaxnod --config-dir etc/gax/node_bios --data-dir {nodeosLogPath}/node_bios --verbose-http-errors --http-validate-host=false --resource-monitor-not-shutdown-on-threshold-exceeded"
     Print("cmd: %s" % (cmd))
     proc=subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if debug: Print("Nodeos process launched.")
+    if debug: Print("gaxnod process launched.")
 
     output={}
     try:
-        if debug: Print("Setting nodeos process timeout.")
+        if debug: Print("Setting gaxnod process timeout.")
         outs,errs = proc.communicate(timeout=myTimeout)
-        if debug: Print("Nodeos process has exited.")
+        if debug: Print("gaxnod process has exited.")
         output["stdout"] = outs.decode("utf-8")
         output["stderr"] = errs.decode("utf-8")
         output["returncode"] = proc.returncode
     except (subprocess.TimeoutExpired) as _:
-        Print("ERROR: Nodeos is running beyond the defined wait time. Hard killing nodeos instance.")
+        Print("ERROR: gaxnod is running beyond the defined wait time. Hard killing gaxnod instance.")
         proc.send_signal(signal.SIGKILL)
         return (False, None)
 
@@ -85,7 +86,7 @@ try:
     Print("Kill cluster nodes.")
     cluster.killall(allInstances=killAll)
 
-    Print("Restart nodeos repeatedly to ensure dirty database flag sticks.")
+    Print("Restart gaxnod repeatedly to ensure dirty database flag sticks.")
     timeout=6
 
     for i in range(1,4):
@@ -94,7 +95,7 @@ try:
         assert(ret)
         assert(isinstance(ret, tuple))
         if not ret[0]:
-            errorExit("Failed to startup nodeos successfully on try number %d" % (i))
+            errorExit("Failed to startup gaxnod successfully on try number %d" % (i))
         assert(ret[1])
         assert(isinstance(ret[1], dict))
         # pylint: disable=unsubscriptable-object

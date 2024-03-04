@@ -17,6 +17,7 @@ void bios::setabi( name account, const std::vector<char>& abi ) {
    }
 }
 
+
 void bios::onerror( ignore<uint128_t>, ignore<std::vector<char>> ) {
    check( false, "the onerror action cannot be called directly" );
 }

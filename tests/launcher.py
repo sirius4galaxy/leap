@@ -24,7 +24,7 @@ from typing import ClassVar, Dict, List
 from TestHarness import Cluster
 from TestHarness import Utils
 from TestHarness import fc_log_level
-
+from TestHarness import system_config
 block_dir = 'blocks'
 
 class EnhancedEncoder(json.JSONEncoder):
@@ -76,7 +76,7 @@ class nodeDefinition:
             type(self).p2p_port_generator = self.create_p2p_port_generator()
         if self.http_port_generator is None:
             type(self).http_port_generator = self.create_http_port_generator()
-    
+
     def set_host(self, is_bios=False):
         self.p2p_port = self.p2p_bios_port() if is_bios else next(self.p2p_port_generator)
         self.http_port = self.http_bios_port() if is_bios else next(self.http_port_generator)
@@ -110,7 +110,7 @@ class nodeDefinition:
         if not self._dot_label:
             self._dot_label = self.mk_dot_label()
         return self._dot_label
-    
+
     def mk_dot_label(self):
         node_name = self.name + '\nprod='
         if len(self.producers) > 0:
@@ -161,10 +161,10 @@ class launcher(object):
 
     def parseArgs(self, args):
         '''Configure argument parser and use it on the passed in list of strings.
-        
+
         arguments:
         args -- list of arguments (may be sys.argv[1:] or synthetic list)
-        
+
         returns -- argparse.Namespace object with parsed results
         '''
         def comma_separated(string):
@@ -179,11 +179,11 @@ class launcher(object):
         parser.add_argument('--bounce', type=comma_separated, help='comma-separated list of node numbers that will be restarted', default=[])
         parser.add_argument('--roll', type=comma_separated, help='comma-separated list of host names where the nodes will be rolled to a new version')
         parser.add_argument('-b', '--base_dir', type=Path, help='base directory where configuration and data files will be written', default=Path('.'))
-        parser.add_argument('--config-dir', type=Path, help='directory containing configuration files such as config.ini', default=Path('etc') / 'eosio')
+        parser.add_argument('--config-dir', type=Path, help='directory containing configuration files such as config.ini', default=Path('etc') / f'{system_config.SYSTEM_ACCOUNT_NAME}')
         parser.add_argument('--data-dir', type=Path, help='name of subdirectory under base-dir where node data will be written', default=Path('var') / 'lib')
         parser.add_argument('-c', '--config', type=Path, help='configuration file name relative to config-dir', default='config.ini')
         parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.0')
-        
+
         cfg = parser.add_argument_group(title='optional and config file arguments')
         cfg.add_argument('-f', '--force', action='store_true', help='force overwrite of existing configuration files and erase blockchain', default=False)
         cfg.add_argument('-n', '--nodes', dest='total_nodes', type=int, help='total number of nodes to configure and launch', default=1)
@@ -337,7 +337,7 @@ class launcher(object):
                 self.write_logging_config_file(node)
                 self.write_genesis_file(node, genesis)
                 node.data_dir_name.mkdir(parents=True, exist_ok=True)
-        
+
         self.write_dot_file()
 
         if self.args.topology_filename:

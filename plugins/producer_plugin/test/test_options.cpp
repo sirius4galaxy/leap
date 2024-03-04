@@ -11,7 +11,7 @@
 #include <eosio/chain/name.hpp>
 
 #include <eosio/chain/application.hpp>
-
+#include <eosio/chain/system_config.hpp>
 using namespace eosio;
 using namespace eosio::chain;
 
@@ -25,19 +25,20 @@ BOOST_AUTO_TEST_CASE(state_dir) {
 
    auto temp_dir_str = temp_dir.string();
    auto custom_state_dir_str = custom_state_dir.string();
-      
+
    appbase::scoped_app app;
 
    std::promise<std::tuple<producer_plugin*, chain_plugin*>> plugin_promise;
    std::future<std::tuple<producer_plugin*, chain_plugin*>> plugin_fut = plugin_promise.get_future();
    std::thread app_thread( [&]() {
       fc::logger::get(DEFAULT_LOGGER).set_log_level(fc::log_level::debug);
+      name sname(SYSTEM_ACCOUNT_NAME);
       std::vector<const char*> argv =
          {"test",
           "--data-dir",   temp_dir_str.c_str(),
           "--state-dir",  custom_state_dir_str.c_str(),
           "--config-dir", temp_dir_str.c_str(),
-          "-p", "eosio", "-e", "--max-transaction-time", "475", "--disable-subjective-billing=true" };
+          "-p", sname.to_string().c_str(), "-e", "--max-transaction-time", "475", "--disable-subjective-billing=true" };
       app->initialize<chain_plugin, producer_plugin>( argv.size(), (char**) &argv[0] );
       app->startup();
       plugin_promise.set_value( {app->find_plugin<producer_plugin>(), app->find_plugin<chain_plugin>()} );
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_CASE(state_dir) {
    // check that "--state-dir" option was taken into account
    BOOST_CHECK(  exists( custom_state_dir ));
    BOOST_CHECK( !exists( state_dir ));
-      
+
    app->quit();
    app_thread.join();
 }

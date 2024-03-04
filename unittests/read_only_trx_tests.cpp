@@ -4,7 +4,7 @@
 #include <eosio/chain/global_property_object.hpp>
 #include <fc/variant_object.hpp>
 #include <test_contracts.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #ifdef NON_VALIDATING_TEST
 #define TESTER tester
 #else
@@ -99,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE(setcode_test, read_only_trx_tester) { try {
 
    std::vector<uint8_t> code(10);
    action act = {
-      {}, setcode { "eosio"_n, 0, 0, bytes(code.begin(), code.end()) }
+      {}, setcode { SYSTEM_ACCOUNT_NAME, 0, 0, bytes(code.begin(), code.end()) }
    };
 
    BOOST_CHECK_THROW( send_action(act), action_validate_exception );
@@ -216,7 +216,7 @@ BOOST_FIXTURE_TEST_CASE(db_insert_test, read_only_trx_tester) { try {
 
    // verify DB insert still works with non-read-only transaction after read-only
    insert_a_record();
-   
+
    // do a read-only transaction and verify the return value (age) is the same as inserted
    auto res = send_db_api_transaction("getage"_n, getage_data, {}, transaction_metadata::trx_type::read_only);
    BOOST_CHECK_EQUAL(res->receipt->status, transaction_receipt::executed);
@@ -313,7 +313,7 @@ BOOST_FIXTURE_TEST_CASE(sequence_numbers_test, read_only_trx_tester) { try {
    // verify sequence numbers in state increment for non-read-only transactions
    auto prev_global_action_sequence = p.global_action_sequence;
    auto prev_recv_sequence = receiver_account->recv_sequence;
-   auto prev_auth_sequence = amo->auth_sequence; 
+   auto prev_auth_sequence = amo->auth_sequence;
 
    auto res = send_db_api_transaction("insert"_n, insert_data);
    BOOST_CHECK_EQUAL(res->receipt->status, transaction_receipt::executed);
@@ -321,13 +321,13 @@ BOOST_FIXTURE_TEST_CASE(sequence_numbers_test, read_only_trx_tester) { try {
    BOOST_CHECK_EQUAL( prev_global_action_sequence + 1, p.global_action_sequence );
    BOOST_CHECK_EQUAL( prev_recv_sequence + 1, receiver_account->recv_sequence );
    BOOST_CHECK_EQUAL( prev_auth_sequence + 1, amo->auth_sequence );
-   
+
    produce_block();
 
    // verify sequence numbers in state do not change for read-only transactions
    prev_global_action_sequence = p.global_action_sequence;
    prev_recv_sequence = receiver_account->recv_sequence;
-   prev_auth_sequence = amo->auth_sequence; 
+   prev_auth_sequence = amo->auth_sequence;
 
    send_db_api_transaction("getage"_n, getage_data, {}, transaction_metadata::trx_type::read_only);
 

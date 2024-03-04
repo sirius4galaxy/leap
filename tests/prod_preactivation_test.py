@@ -4,7 +4,7 @@ import decimal
 import re
 import time
 
-from TestHarness import Cluster, Node, ReturnType, TestHelper, Utils, WalletMgr
+from TestHarness import Cluster, Node, ReturnType, TestHelper, Utils, WalletMgr, system_config
 from TestHarness.Cluster import PFSetupPolicy
 
 ###############################################################
@@ -98,7 +98,7 @@ try:
     Print("found digest ", digest, " of PREACTIVATE_FEATURE")
 
     node0 = cluster.getNode(0)
-    contract="eosio.bios"
+    contract=f"{system_config.SYSTEM_BIOS_ACCOUNT_NAME}"
     contractDir="libraries/testing/contracts/old_versions/v1.7.0-develop-preactivate_feature/%s" % (contract)
     wasmFile="%s.wasm" % (contract)
     abiFile="%s.abi" % (contract)

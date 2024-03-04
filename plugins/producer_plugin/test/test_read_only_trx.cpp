@@ -9,6 +9,7 @@
 #include <eosio/chain/trace.hpp>
 #include <eosio/chain/name.hpp>
 #include <eosio/chain/application.hpp>
+#include <eosio/chain/system_config.hpp>
 
 namespace eosio::test::detail {
 using namespace eosio::chain::literals;
@@ -56,7 +57,7 @@ void test_configs_common(std::vector<const char*>& specific_args, app_init_statu
    appbase::scoped_app app;
    fc::temp_directory temp;
    auto temp_dir_str = temp.path().string();
-   
+
    fc::logger::get(DEFAULT_LOGGER).set_log_level(fc::log_level::debug);
    std::vector<const char*> argv =
       {"test", "--data-dir", temp_dir_str.c_str(), "--config-dir", temp_dir_str.c_str()};
@@ -70,7 +71,8 @@ void test_configs_common(std::vector<const char*>& specific_args, app_init_statu
 
 // --read-only-thread not allowed on producer node
 BOOST_AUTO_TEST_CASE(read_only_on_producer) {
-   std::vector<const char*> specific_args = {"-p", "eosio", "-e", "--read-only-threads", "2" };
+   name sname(SYSTEM_ACCOUNT_NAME);
+   std::vector<const char*> specific_args = {"-p", sname.to_string().c_str(), "-e", "--read-only-threads", "2" };
    test_configs_common(specific_args, app_init_status::failed);
 }
 
@@ -93,7 +95,7 @@ void test_trxs_common(std::vector<const char*>& specific_args) {
    fc::temp_directory temp;
    auto temp_dir_str = temp.path().string();
    producer_plugin::set_test_mode(true);
-   
+
    std::promise<std::tuple<producer_plugin*, chain_plugin*>> plugin_promise;
    std::future<std::tuple<producer_plugin*, chain_plugin*>> plugin_fut = plugin_promise.get_future();
    std::thread app_thread( [&]() {
@@ -169,13 +171,15 @@ void test_trxs_common(std::vector<const char*>& specific_args) {
 
 // test read-only trxs on main thread (no --read-only-threads)
 BOOST_AUTO_TEST_CASE(no_read_only_threads) {
-   std::vector<const char*> specific_args = { "-p", "eosio", "-e", "--abi-serializer-max-time-ms=999" };
+   name sname(SYSTEM_ACCOUNT_NAME);
+   std::vector<const char*> specific_args = { "-p", sname.to_string().c_str(), "-e", "--abi-serializer-max-time-ms=999" };
    test_trxs_common(specific_args);
 }
 
 // test read-only trxs on 1 threads (with --read-only-threads)
 BOOST_AUTO_TEST_CASE(with_1_read_only_threads) {
-   std::vector<const char*> specific_args = { "-p", "eosio", "-e",
+   name sname(SYSTEM_ACCOUNT_NAME);
+   std::vector<const char*> specific_args = { "-p", sname.to_string().c_str(), "-e",
                                               "--read-only-threads=1",
                                               "--max-transaction-time=10",
                                               "--abi-serializer-max-time-ms=999",
@@ -187,7 +191,8 @@ BOOST_AUTO_TEST_CASE(with_1_read_only_threads) {
 
 // test read-only trxs on 8 separate threads (with --read-only-threads)
 BOOST_AUTO_TEST_CASE(with_8_read_only_threads) {
-   std::vector<const char*> specific_args = { "-p", "eosio", "-e",
+   name sname(SYSTEM_ACCOUNT_NAME);
+   std::vector<const char*> specific_args = { "-p", sname.to_string().c_str(), "-e",
                                               "--read-only-threads=8",
                                               "--max-transaction-time=10",
                                               "--abi-serializer-max-time-ms=999",

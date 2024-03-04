@@ -81,6 +81,7 @@ Options:
 
 #include <eosio/chain/name.hpp>
 #include <eosio/chain/config.hpp>
+#include <eosio/chain/system_config.hpp>
 #include <eosio/chain/trace.hpp>
 #include <eosio/chain_plugin/chain_plugin.hpp>
 #include <eosio/chain/contract_types.hpp>
@@ -156,7 +157,7 @@ std::string clean_output( std::string str ) {
 }
 
 string default_url = "http://127.0.0.1:8888";
-string default_wallet_url = "unix://" + (determine_home_directory() / "eosio-wallet" / (string(key_store_executable_name) + ".sock")).string();
+string default_wallet_url = "unix://" + (determine_home_directory() / DEFAULT_WALLET_DIR / (string(key_store_executable_name) + ".sock")).string();
 string wallet_url; //to be set to default_wallet_url in main
 std::map<name, std::string>  abi_files_override;
 
@@ -248,7 +249,7 @@ void add_standard_transaction_options(CLI::App* cmd, string default_permission =
 }
 
 bool is_public_key_str(const std::string& potential_key_str) {
-   return boost::istarts_with(potential_key_str, "EOS") || boost::istarts_with(potential_key_str, "PUB_R1") ||  boost::istarts_with(potential_key_str, "PUB_K1") ||  boost::istarts_with(potential_key_str, "PUB_WA");
+   return boost::istarts_with(potential_key_str, PUBLIC_KEY_LEGACY_PREFIX) || boost::istarts_with(potential_key_str, "PUB_R1") ||  boost::istarts_with(potential_key_str, "PUB_K1") ||  boost::istarts_with(potential_key_str, "PUB_WA");
 }
 
 class signing_keys_option {
@@ -913,7 +914,7 @@ asset to_asset( account_name code, const string& s ) {
 }
 
 inline asset to_asset( const string& s ) {
-   return to_asset( "eosio.token"_n, s );
+   return to_asset( SYSTEM_TOKEN_ACCOUNT_NAME, s );
 }
 
 struct set_account_permission_subcommand {
@@ -2371,8 +2372,8 @@ protocol_features_t get_supported_protocol_features() {
 
 struct activate_subcommand {
    string feature_name_str;
-   std::string account_str = "eosio";
-   std::string permission_str = "eosio";
+   std::string account_str = eosio::name(SYSTEM_ACCOUNT_NAME).to_string();
+   std::string permission_str = eosio::name(SYSTEM_ACCOUNT_NAME).to_string();
 
    activate_subcommand(CLI::App* actionRoot) {
       auto activate = actionRoot->add_subcommand("activate", localized("Activate protocol feature by name"));
@@ -2501,7 +2502,7 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
       }
 
       // print linked actions
-      std::cout << indent << "eosio.any: " << std::endl;
+      std::cout << indent << SYSTEM_ANY_ACCOUNT_NAME <<": " << std::endl;
       for (const auto& it : res.eosio_any_linked_actions) {
          auto action_value = it.action ? it.action->to_string() : std::string("*");
          std::cout << indent << indent << it.account << "::" << action_value << std::endl;
@@ -3596,7 +3597,8 @@ int main( int argc, char** argv ) {
    auto setActionPermission = set_action_permission_subcommand(setAction);
 
    // Transfer subcommand
-   string con = "eosio.token";
+   eosio::name conname(SYSTEM_TOKEN_ACCOUNT_NAME);
+   string con = conname.to_string();
    string sender;
    string recipient;
    string amount;
@@ -4066,7 +4068,7 @@ int main( int argc, char** argv ) {
          ("requested", requested_perm_var)
          ("trx", trx_var);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "propose"_n, variant_to_bin( "eosio.msig"_n, "propose"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, SYSTEM_MULTISIG_ACCOUNT_NAME, "propose"_n, variant_to_bin( SYSTEM_MULTISIG_ACCOUNT_NAME, "propose"_n, args ) }}, signing_keys_opt.get_keys());
    });
 
    //multisig propose transaction
@@ -4099,7 +4101,7 @@ int main( int argc, char** argv ) {
          ("requested", requested_perm_var)
          ("trx", trx_var);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "propose"_n, variant_to_bin( "eosio.msig"_n, "propose"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, SYSTEM_MULTISIG_ACCOUNT_NAME, "propose"_n, variant_to_bin( SYSTEM_MULTISIG_ACCOUNT_NAME, "propose"_n, args ) }}, signing_keys_opt.get_keys());
    });
 
 
@@ -4109,10 +4111,10 @@ int main( int argc, char** argv ) {
    review->add_option("proposer", proposer, localized("The proposer name (string)"))->required();
    review->add_option("proposal_name", proposal_name, localized("The proposal name (string)"))->required();
    review->add_flag( "--show-approvals", show_approvals_in_multisig_review, localized("Show the status of the approvals requested within the proposal") );
-
+   eosio::name mname(SYSTEM_MULTISIG_ACCOUNT_NAME);
    review->callback([&] {
       const auto result1 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                 ("code", "eosio.msig")
+                                 ("code", mname.to_string())
                                  ("scope", proposer)
                                  ("table", "proposal")
                                  ("table_key", "")
@@ -4147,8 +4149,9 @@ int main( int argc, char** argv ) {
          fc::variants rows2;
 
          try {
+            eosio::name mname(SYSTEM_MULTISIG_ACCOUNT_NAME);
             const auto& result2 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                       ("code", "eosio.msig")
+                                       ("code", mname.to_string())
                                        ("scope", proposer)
                                        ("table", "approvals2")
                                        ("table_key", "")
@@ -4177,8 +4180,9 @@ int main( int argc, char** argv ) {
                provided_approvers[pl.actor].second.push_back( res.first );
             }
          } else {
+            eosio::name mname(SYSTEM_MULTISIG_ACCOUNT_NAME);
             const auto result3 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                       ("code", "eosio.msig")
+                                       ("code", mname.to_string())
                                        ("scope", proposer)
                                        ("table", "approvals")
                                        ("table_key", "")
@@ -4209,10 +4213,11 @@ int main( int argc, char** argv ) {
          }
 
          if( new_multisig ) {
+            eosio::name mname(SYSTEM_MULTISIG_ACCOUNT_NAME);
             for( auto& a : provided_approvers ) {
                const auto result4 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                          ("code", "eosio.msig")
-                                          ("scope", "eosio.msig")
+                                          ("code", mname.to_string())
+                                          ("scope", mname.to_string())
                                           ("table", "invals")
                                           ("table_key", "")
                                           ("lower_bound", a.first.to_uint64_t())
@@ -4314,7 +4319,7 @@ int main( int argc, char** argv ) {
       }
 
       auto accountPermissions = get_account_permissions(tx_permission, {name(proposer), config::active_name});
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, name(action), variant_to_bin( "eosio.msig"_n, name(action), args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, SYSTEM_MULTISIG_ACCOUNT_NAME, name(action), variant_to_bin( SYSTEM_MULTISIG_ACCOUNT_NAME, name(action), args ) }}, signing_keys_opt.get_keys());
    };
 
    // multisig approve
@@ -4344,7 +4349,7 @@ int main( int argc, char** argv ) {
          ("account", invalidator);
 
       auto accountPermissions = get_account_permissions(tx_permission, {name(invalidator), config::active_name});
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "invalidate"_n, variant_to_bin( "eosio.msig"_n, "invalidate"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, SYSTEM_MULTISIG_ACCOUNT_NAME, "invalidate"_n, variant_to_bin( SYSTEM_MULTISIG_ACCOUNT_NAME, "invalidate"_n, args ) }}, signing_keys_opt.get_keys());
    });
 
    // multisig cancel
@@ -4371,7 +4376,7 @@ int main( int argc, char** argv ) {
          ("proposal_name", proposal_name)
          ("canceler", canceler);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "cancel"_n, variant_to_bin( "eosio.msig"_n, "cancel"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, SYSTEM_MULTISIG_ACCOUNT_NAME, "cancel"_n, variant_to_bin( SYSTEM_MULTISIG_ACCOUNT_NAME, "cancel"_n, args ) }}, signing_keys_opt.get_keys());
       }
    );
 
@@ -4400,7 +4405,7 @@ int main( int argc, char** argv ) {
          ("proposal_name", proposal_name)
          ("executer", executer);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig"_n, "exec"_n, variant_to_bin( "eosio.msig"_n, "exec"_n, args ) }}, signing_keys_opt.get_keys());
+      send_actions({chain::action{accountPermissions, SYSTEM_MULTISIG_ACCOUNT_NAME, "exec"_n, variant_to_bin( SYSTEM_MULTISIG_ACCOUNT_NAME, "exec"_n, args ) }}, signing_keys_opt.get_keys());
       }
    );
 
@@ -4409,7 +4414,8 @@ int main( int argc, char** argv ) {
    wrap->require_subcommand();
 
    // wrap exec
-   string wrap_con = "eosio.wrap";
+   eosio::name wname(SYSTEM_WRAP_ACCOUNT_NAME);
+   string wrap_con = wname.to_string();
    executer = "";
    string trx_to_exec;
    auto wrap_exec = wrap->add_subcommand("exec", localized("Execute a transaction while bypassing authorization checks"));
@@ -4434,7 +4440,9 @@ int main( int argc, char** argv ) {
    });
 
    // system subcommand
-   auto system = app.add_subcommand("system", localized("Send eosio.system contract action to the blockchain."));
+   eosio::name sname(SYSTEM_CONTRACT_NAME);
+   string sys_aname = sname.to_string();
+   auto system = app.add_subcommand("system", localized(("Send "+sys_aname+" contract action to the blockchain.").c_str()));
    system->require_subcommand();
 
    auto createAccountSystem = create_account_subcommand( system, false /*simple*/ );

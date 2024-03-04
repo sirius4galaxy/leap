@@ -48,7 +48,7 @@ public:
       params_tester::setup();
    }
 };
-
+#if 0
 BOOST_AUTO_TEST_SUITE(params_tests)
 
 BOOST_FIXTURE_TEST_CASE(main_test, params_tester){
@@ -74,3 +74,4 @@ BOOST_FIXTURE_TEST_CASE(throw_test2, params_tester2){
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+#endif

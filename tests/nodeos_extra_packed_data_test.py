@@ -3,7 +3,7 @@
 import json
 import copy
 
-from TestHarness import Cluster, TestHelper, Utils, WalletMgr, CORE_SYMBOL
+from TestHarness import Cluster, TestHelper, Utils, WalletMgr, CORE_SYMBOL, system_config
 from TestHarness.Cluster import PFSetupPolicy
 from TestHarness.TestHelper import AppArgs
 
@@ -37,10 +37,10 @@ walletPort=args.wallet_port
 
 Utils.Debug=debug
 localTest=True if server == TestHelper.LOCAL_HOST else False
-cluster=Cluster(host=server, 
-                port=port, 
+cluster=Cluster(host=server,
+                port=port,
                 walletd=True,
-                defproduceraPrvtKey=defproduceraPrvtKey, 
+                defproduceraPrvtKey=defproduceraPrvtKey,
                 defproducerbPrvtKey=defproducerbPrvtKey,
                 unshared=args.unshared)
 walletMgr=WalletMgr(True, port=walletPort)
@@ -71,7 +71,7 @@ try:
         if pnodes > 3:
             specificExtraNodeosArgs[pnodes - 2] = ""
 
-        if cluster.launch(totalNodes=pnodes, 
+        if cluster.launch(totalNodes=pnodes,
                           pnodes=pnodes,
                           dontBootstrap=dontBootstrap,
                           pfSetupPolicy=PFSetupPolicy.PREACTIVATE_FEATURE_ONLY,
@@ -90,7 +90,7 @@ try:
         if walletMgr.launch() is False:
             cmdError("%s" % (WalletdName))
             errorExit("Failed to stand up eos walletd.")
-    
+
     if sanityTest:
         testSuccessful=True
         exit(0)
@@ -110,7 +110,7 @@ try:
     Print("Creating wallet \"%s\"" % (testWalletName))
     walletAccounts=copy.deepcopy(cluster.defProducerAccounts)
     if dontLaunch:
-        del walletAccounts["eosio"]
+        del walletAccounts[f"{system_config.SYSTEM_ACCOUNT_NAME}"]
     testWallet = walletMgr.create(testWalletName, walletAccounts.values())
 
     Print("Wallet \"%s\" password=%s." % (testWalletName, testWallet.password.encode("utf-8")))
@@ -121,7 +121,7 @@ try:
         if not walletMgr.importKey(account, testWallet):
             cmdError("%s wallet import" % (ClientName))
             errorExit("Failed to import key for account %s" % (account.name))
-    
+
     node=cluster.getNode(0)
 
     Print("Create new account %s via %s" % (testeraAccount.name, cluster.defproduceraAccount.name))
@@ -139,7 +139,7 @@ try:
     for i in range(trxNumber):
         if i == 1:
             node = cluster.getNode(pnodes - 1)
-        
+
         transferAmount="{0}.0 {1}".format(i + 1, CORE_SYMBOL)
         Print("Transfer funds %s from account %s to %s" % (transferAmount, cluster.defproduceraAccount.name, testeraAccount.name))
         trx = node.transferFunds(cluster.defproduceraAccount, testeraAccount, transferAmount, "test transfer", dontSend=True)
@@ -153,7 +153,7 @@ try:
         if packed_trx_param is None:
             cmdError("packed_trx is None. Json: %s" % (packedTrx))
             errorExit("Can't find packed_trx in packed json")
-        
+
         #adding random trailing data
         packedTrx["packed_trx"] = packed_trx_param + "00000000"
 
@@ -164,14 +164,14 @@ try:
         postedTrxs.append(trx_id)
 
     assert len(postedTrxs) == trxNumber, Print("posted transactions number %d doesn't match %d" % (len(postedTrxs), trxNumber))
-    
-    for trxId in postedTrxs:        
+
+    for trxId in postedTrxs:
         attemptCnt = 10
         trxBlock = None
         while trxBlock is None and attemptCnt > 0:
             trxBlock = node.getBlockNumByTransId(trx_id)
             attemptCnt = attemptCnt - 1
-        
+
         assert trxBlock, Print("Transaction %s wasn't posted" % (trx_id))
 
         for cur_node in cluster.getNodes():
@@ -179,7 +179,7 @@ try:
             timeout = (12 * pnodes) * 1.3
             passed = cur_node.waitForBlock(trxBlock + 12 * pnodes, timeout)
             assert passed, Print("Node %d not advanced head block within timeout")
-    
+
     testSuccessful=True
 finally:
     TestHelper.shutdown(cluster, walletMgr, testSuccessful, killEosInstances, killWallet, keepLogs, killAll, dumpErrorDetails)

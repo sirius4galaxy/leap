@@ -24,6 +24,7 @@
 #include <eosio/chain/generated_transaction_object.hpp>
 #include <eosio/chain/wasm_interface.hpp>
 #include <eosio/chain/resource_limits.hpp>
+#include <eosio/chain/system_config.hpp>
 
 #include <fc/crypto/digest.hpp>
 #include <fc/crypto/sha256.hpp>
@@ -60,6 +61,7 @@ static constexpr unsigned long long WASM_TEST_ACTION(const char* cls, const char
 }
 
 using namespace eosio::chain::literals;
+using namespace eosio::chain;
 
 struct u128_action {
   unsigned __int128  values[3]; //16*3
@@ -280,6 +282,18 @@ bool is_tx_cpu_usage_exceeded(const tx_cpu_usage_exceeded& e) { return true; }
 bool is_block_cpu_usage_exceeded(const block_cpu_usage_exceeded& e) { return true; }
 bool is_deadline_exception(const deadline_exception& e) { return true; }
 
+string pubkey_prefix_replaces(const char *my_other){
+   string test_str = my_other;
+   size_t pos = 0;
+   while( true ){
+      pos = test_str.find("GAX");
+      if( pos > test_str.size() ){
+         break;
+      }
+      test_str.replace(pos, strlen(PUBLIC_KEY_LEGACY_PREFIX), PUBLIC_KEY_LEGACY_PREFIX);
+   }
+   return test_str;
+}
 /*
  * register test suite `api_tests`
  */
@@ -892,7 +906,7 @@ BOOST_AUTO_TEST_CASE(light_validation_skip_cfa) try {
    auto conf_genesis = tester::default_config( tempdir );
 
    auto& cfg = conf_genesis.first;
-   cfg.trusted_producers = { "eosio"_n }; // light validation
+   cfg.trusted_producers = { SYSTEM_ACCOUNT_NAME }; // light validation
 
    tester other( conf_genesis.first, conf_genesis.second );
    other.execute_setup_policy( setup_policy::full );
@@ -2773,13 +2787,14 @@ BOOST_FIXTURE_TEST_CASE(permission_tests, TESTER) { try {
       })
    );
    BOOST_CHECK_EQUAL( int64_t(1), get_result_int64() );
-
+   const char* temp1 = "GAX7GfRtyDWWgxV88a5TRaYY59XmHptyfjsFmHHfioGNJtPjpSmGX";
+   string test_str1 = pubkey_prefix_replaces(temp1);
    CALL_TEST_FUNCTION( *this, "test_permission", "check_authorization",
       fc::raw::pack( check_auth {
          .account    = "testapi"_n,
          .permission = "active"_n,
          .pubkeys    = {
-            public_key_type(string("EOS7GfRtyDWWgxV88a5TRaYY59XmHptyfjsFmHHfioGNJtPjpSmGX"))
+            public_key_type(string(test_str1))
          }
       })
    );
@@ -2791,7 +2806,7 @@ BOOST_FIXTURE_TEST_CASE(permission_tests, TESTER) { try {
          .permission = "active"_n,
          .pubkeys    = {
             get_public_key("testapi"_n, "active"),
-            public_key_type(string("EOS7GfRtyDWWgxV88a5TRaYY59XmHptyfjsFmHHfioGNJtPjpSmGX"))
+            public_key_type(string(test_str1))
          }
       })
    );
@@ -2900,7 +2915,7 @@ static const char get_resource_limits_null_cpu_wast[] = R"=====(
 BOOST_FIXTURE_TEST_CASE(resource_limits_tests, TESTER) {
    create_accounts( { "rlimits"_n, "testacnt"_n } );
    set_code("rlimits"_n, resource_limits_wast);
-   push_action( "eosio"_n, "setpriv"_n, "eosio"_n, mutable_variant_object()("account", "rlimits"_n)("is_priv", 1));
+   push_action( SYSTEM_ACCOUNT_NAME, "setpriv"_n, SYSTEM_ACCOUNT_NAME, mutable_variant_object()("account", "rlimits"_n)("is_priv", 1));
    produce_block();
 
    auto pushit = [&]{
@@ -3032,10 +3047,10 @@ BOOST_FIXTURE_TEST_CASE(permission_usage_tests, TESTER) { try {
    produce_blocks(5);
 
    set_authority( "bob"_n, "perm1"_n, authority( get_private_key("bob"_n, "perm1").get_public_key() ) );
-
+   name sname(SYSTEM_ACCOUNT_NAME);
    push_action(config::system_account_name, linkauth::get_name(), "bob"_n, fc::mutable_variant_object()
            ("account", "bob")
-           ("code", "eosio")
+           ("code", sname.to_string())
            ("type", "reqauth")
            ("requirement", "perm1")
    );

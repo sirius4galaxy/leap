@@ -9,7 +9,7 @@
 #include <eosio/chain/wast_to_wasm.hpp>
 #include <eosio/chain/global_property_object.hpp>
 #include <eosio/chain_plugin/chain_plugin.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #include <test_contracts.hpp>
 
 #include <fc/io/fstream.hpp>
@@ -239,12 +239,12 @@ BOOST_FIXTURE_TEST_CASE( get_account, TESTER ) try {
    }
    BOOST_REQUIRE_EQUAL(0, result.eosio_any_linked_actions.size());
 
-   // test link authority to eosio.any
-   link_authority(name("alice"_n), name("bob"_n), name("eosio.any"_n), name("foo"_n));
+   // test link authority to ${SYSTEM_ANY_ACCOUNT_NAME}
+   link_authority(name("alice"_n), name("bob"_n), name(SYSTEM_ANY_ACCOUNT_NAME), name("foo"_n));
    produce_block();
    result = plugin.read_only::get_account(p, fc::time_point::maximum());
    check_result_basic(result, name("alice"_n), false);
-   // active permission should no longer have linked auth, as eosio.any replaces it
+   // active permission should no longer have linked auth, as ${SYSTEM_ANY_ACCOUNT_NAME} replaces it
    perm = result.permissions[0];
    BOOST_REQUIRE_EQUAL(0, perm.linked_actions->size());
 

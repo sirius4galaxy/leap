@@ -6,7 +6,7 @@ import time
 import os
 import filecmp
 
-from TestHarness import Account, Cluster, Node, TestHelper, Utils, WalletMgr
+from TestHarness import Account, Cluster, Node, TestHelper, Utils, WalletMgr, system_config
 
 ###############################################################
 # nodeos_chainbase_allocation_test
@@ -61,8 +61,8 @@ try:
     irrNode = cluster.getNode(irrNodeId)
 
     # Create delayed transaction to create "generated_transaction_object"
-    cmd = "create account -j eosio sample EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV\
-         EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV --delay-sec 600 -p eosio"
+    cmd = f"create account -j {system_config.SYSTEM_ACCOUNT_NAME} sample EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV\
+         EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV --delay-sec 600 -p {system_config.SYSTEM_ACCOUNT_NAME}"
     trans = producerNode.processCleosCmd(cmd, cmd, silentErrors=False)
     assert trans
 
@@ -75,7 +75,7 @@ try:
     setProdsStr = '{"schedule": ['
     setProdsStr += '{"producer_name":' + newProducerAcc.name + ',"block_signing_key":' + newProducerAcc.activePublicKey + '}'
     setProdsStr += ']}'
-    cmd="push action -j eosio setprods '{}' -p eosio".format(setProdsStr)
+    cmd="push action -j {} setprods '{}' -p {}".format(system_config.SYSTEM_ACCOUNT_NAME, setProdsStr, system_config.SYSTEM_ACCOUNT_NAME)
     trans = producerNode.processCleosCmd(cmd, cmd, silentErrors=False)
     assert trans
     setProdsBlockNum = int(trans["processed"]["block_num"])

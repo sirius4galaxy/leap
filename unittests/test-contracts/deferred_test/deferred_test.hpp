@@ -24,6 +24,6 @@ public:
    [[eosio::action]]
    void fail();
 
-   [[eosio::on_notify("eosio::onerror")]]
+   [[eosio::on_notify(NOTIFY_ACTION)]]
    void on_error( uint128_t sender_id, eosio::ignore<std::vector<char>> sent_trx );
 };

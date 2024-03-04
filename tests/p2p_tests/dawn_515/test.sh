@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#
+# TODO: modify brand tags
 # This test ensures that connections with the same p2p-server-address
 # are not closed as redundant.
 #
@@ -245,32 +245,32 @@ read -d '' logging01 << EOF
 EOF
 
 rm -rf staging
-rm -rf etc/eosio/node_*
+rm -rf etc/gax/node_*
 rm -rf var/lib
 cName=config.ini
 lName=logging.json
 gName=genesis.json
 
-path=staging/etc/eosio/node_bios
+path=staging/etc/gax/node_bios
 mkdir -p $path
 echo "$configbios" > $path/$cName
 echo "$loggingbios" > $path/$lName
 echo "$genesis" > $path/$gName
 
-path=staging/etc/eosio/node_00
+path=staging/etc/gax/node_00
 mkdir -p $path
 echo "$config00" > $path/$cName
 echo "$logging00" > $path/$lName
 echo "$genesis" > $path/$gName
 
-path=staging/etc/eosio/node_01
+path=staging/etc/gax/node_01
 mkdir -p $path
 echo "$config01" > $path/$cName
 echo "$logging01" > $path/$lName
 echo "$genesis" > $path/$gName
 
 
-programs/eosio-launcher/eosio-launcher -p $pnodes -n $total_nodes --nogen -d $delay
+programs/gax-launcher/gax-launcher -p $pnodes -n $total_nodes --nogen -d $delay
 
 sleep 5
 res=$(grep "reason = duplicate" var/lib/node_*/stderr.txt | wc -l)
@@ -299,8 +299,8 @@ if [ $ret  -eq 0 ]; then
     echo SUCCESS
 fi
 
-programs/eosio-launcher/eosio-launcher -k 15
+programs/gax-launcher/gax-launcher -k 15
 rm -rf staging
 rm -rf var/lib/node_*
-rm -rf etc/eosio/node_*
+rm -rf etc/gax/node_*
 exit $ret

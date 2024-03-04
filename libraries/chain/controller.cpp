@@ -25,7 +25,7 @@
 #include <eosio/chain/thread_utils.hpp>
 #include <eosio/chain/platform_timer.hpp>
 #include <eosio/chain/deep_mind.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #include <chainbase/chainbase.hpp>
 #include <eosio/vm/allocator.hpp>
 #include <fc/io/json.hpp>
@@ -348,25 +348,25 @@ struct controller_impl {
          }
       });
 
-
+using namespace  eosio::chain;
 #define SET_APP_HANDLER( receiver, contract, action) \
-   set_apply_handler( account_name(#receiver), account_name(#contract), action_name(#action), \
+   set_apply_handler( account_name(BOOST_STRINGIZE(receiver)), account_name(BOOST_STRINGIZE(contract)), action_name(#action), \
                       &BOOST_PP_CAT(apply_, BOOST_PP_CAT(contract, BOOST_PP_CAT(_,action) ) ) )
 
-   SET_APP_HANDLER( eosio, eosio, newaccount );
-   SET_APP_HANDLER( eosio, eosio, setcode );
-   SET_APP_HANDLER( eosio, eosio, setabi );
-   SET_APP_HANDLER( eosio, eosio, updateauth );
-   SET_APP_HANDLER( eosio, eosio, deleteauth );
-   SET_APP_HANDLER( eosio, eosio, linkauth );
-   SET_APP_HANDLER( eosio, eosio, unlinkauth );
+   SET_APP_HANDLER( NATIVE_HANDLER_TAG, NATIVE_HANDLER_TAG, newaccount );
+   SET_APP_HANDLER( NATIVE_HANDLER_TAG, NATIVE_HANDLER_TAG, setcode );
+   SET_APP_HANDLER( NATIVE_HANDLER_TAG, NATIVE_HANDLER_TAG, setabi );
+   SET_APP_HANDLER( NATIVE_HANDLER_TAG, NATIVE_HANDLER_TAG, updateauth );
+   SET_APP_HANDLER( NATIVE_HANDLER_TAG, NATIVE_HANDLER_TAG, deleteauth );
+   SET_APP_HANDLER( NATIVE_HANDLER_TAG, NATIVE_HANDLER_TAG, linkauth );
+   SET_APP_HANDLER( NATIVE_HANDLER_TAG, NATIVE_HANDLER_TAG, unlinkauth );
 /*
    SET_APP_HANDLER( eosio, eosio, postrecovery );
    SET_APP_HANDLER( eosio, eosio, passrecovery );
    SET_APP_HANDLER( eosio, eosio, vetorecovery );
 */
 
-   SET_APP_HANDLER( eosio, eosio, canceldelay );
+   SET_APP_HANDLER( NATIVE_HANDLER_TAG, NATIVE_HANDLER_TAG, canceldelay );
    }
 
    /**

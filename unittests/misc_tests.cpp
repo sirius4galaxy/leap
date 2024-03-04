@@ -4,7 +4,7 @@
 #include <eosio/chain/types.hpp>
 #include <eosio/chain/thread_utils.hpp>
 #include <eosio/testing/tester.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #include <fc/io/json.hpp>
 #include <fc/log/logger_config.hpp>
 #include <appbase/application.hpp>
@@ -114,6 +114,19 @@ static constexpr uint64_t name_suffix( name nv ) {
    uint32_t shift = 64 - remaining_bits_after_last_actual_dot;
 
    return ( ((n & mask) << shift) + (thirteenth_character << (shift-1)) );
+}
+
+string pubkey_prefix_replace(const char *my_other){
+   string test_str = my_other;
+   size_t pos = 0;
+   while( true ){
+      pos = test_str.find("GAX");
+      if( pos > test_str.size() ){
+         break;
+      }
+      test_str.replace(pos, strlen(PUBLIC_KEY_LEGACY_PREFIX), PUBLIC_KEY_LEGACY_PREFIX);
+   }
+   return test_str;
 }
 
 BOOST_AUTO_TEST_SUITE(misc_tests)
@@ -700,26 +713,26 @@ BOOST_AUTO_TEST_CASE(transaction_test) { try {
 
    testing::TESTER test;
    signed_transaction trx;
-
+   name sname(SYSTEM_ACCOUNT_NAME);
    fc::variant pretty_trx = fc::mutable_variant_object()
       ("actions", fc::variants({
          fc::mutable_variant_object()
-            ("account", "eosio")
+            ("account", sname.to_string())
             ("name", "reqauth")
             ("authorization", fc::variants({
                fc::mutable_variant_object()
-                  ("actor", "eosio")
+                  ("actor", sname.to_string())
                   ("permission", "active")
             }))
             ("data", fc::mutable_variant_object()
-               ("from", "eosio")
+               ("from", sname.to_string())
             )
          })
       )
       // lets also push a context free action, the multi chain test will then also include a context free action
       ("context_free_actions", fc::variants({
          fc::mutable_variant_object()
-            ("account", "eosio")
+            ("account", sname.to_string())
             ("name", "nonce")
             ("data", fc::raw::pack(std::string("dummy")))
          })
@@ -865,25 +878,25 @@ BOOST_AUTO_TEST_CASE(transaction_metadata_test) { try {
 
    testing::TESTER test;
    signed_transaction trx;
-
+   name sname(SYSTEM_ACCOUNT_NAME);
    fc::variant pretty_trx = fc::mutable_variant_object()
       ("actions", fc::variants({
          fc::mutable_variant_object()
-            ("account", "eosio")
+            ("account", sname.to_string())
             ("name", "reqauth")
             ("authorization", fc::variants({
                fc::mutable_variant_object()
-                  ("actor", "eosio")
+                  ("actor", sname.to_string())
                   ("permission", "active")
             }))
             ("data", fc::mutable_variant_object()
-               ("from", "eosio")
+               ("from", sname.to_string())
             )
          })
       )
       ("context_free_actions", fc::variants({
          fc::mutable_variant_object()
-            ("account", "eosio")
+            ("account", sname.to_string())
             ("name", "nonce")
             ("data", fc::raw::pack(std::string("dummy data")))
          })
@@ -1253,7 +1266,9 @@ BOOST_AUTO_TEST_CASE(named_thread_pool_test) {
 
 BOOST_AUTO_TEST_CASE(public_key_from_hash) {
    auto private_key_string = std::string("5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-   auto expected_public_key = std::string("EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV");
+   const char* temp1 = "GAX6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV";
+   string test_str1 = pubkey_prefix_replace(temp1);
+   auto expected_public_key = std::string(test_str1);
    auto test_private_key = fc::crypto::private_key(private_key_string);
    auto test_public_key = test_private_key.get_public_key();
    fc::crypto::public_key eos_pk(expected_public_key);

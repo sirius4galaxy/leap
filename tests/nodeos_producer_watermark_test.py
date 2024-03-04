@@ -5,7 +5,7 @@ import decimal
 import math
 import re
 
-from TestHarness import Cluster, Node, TestHelper, Utils, WalletMgr
+from TestHarness import Cluster, Node, TestHelper, Utils, WalletMgr, system_config
 
 ###############################################################
 # nodeos_producer_watermark_test
@@ -44,9 +44,9 @@ def setProds(sharedProdKey):
 
     setProdsStr += ' ] }'
     Utils.Print("setprods: %s" % (setProdsStr))
-    opts="--permission eosio@active"
+    opts=f"--permission {system_config.SYSTEM_ACCOUNT_NAME}@active"
     # pylint: disable=redefined-variable-type
-    trans=cluster.biosNode.pushMessage("eosio", "setprods", setProdsStr, opts)
+    trans=cluster.biosNode.pushMessage(f"{system_config.SYSTEM_ACCOUNT_NAME}", "setprods", setProdsStr, opts)
     if trans is None or not trans[0]:
         Utils.Print("ERROR: Failed to set producer with cmd %s" % (setProdsStr))
 
@@ -110,7 +110,7 @@ def verifyProductionRounds(trans, node, prodsActive, rounds):
         prodsSeen={}
         lastBlockProducer=None
         for j in range(0, prodsSize):
-            # each new set of 12 blocks should have a different blockProducer 
+            # each new set of 12 blocks should have a different blockProducer
             if lastBlockProducer is not None and lastBlockProducer==node.getBlockProducerByNum(blockNum):
                 Utils.cmdError("expected blockNum %s to be produced by any of the valid producers except %s" % (blockNum, lastBlockProducer))
                 Utils.errorExit("Failed because of incorrect block producer order")
@@ -198,12 +198,12 @@ try:
     prodsActive["defproducerc"] = True
 
     Print("Wait for initial schedule: defproducera(node 0) shrproducera(node 2) defproducerb(node 1) defproducerc(node 2)")
-    
+
     tries=10
     while tries > 0:
         node.infoValid = False
         info = node.getInfo()
-        if node.infoValid and node.lastRetrievedHeadBlockProducer != "eosio":
+        if node.infoValid and node.lastRetrievedHeadBlockProducer != f"{system_config.SYSTEM_ACCOUNT_NAME}":
             break
         time.sleep(1)
         tries = tries-1

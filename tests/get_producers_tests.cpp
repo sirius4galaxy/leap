@@ -3,7 +3,7 @@
 #include <eosio/chain/exceptions.hpp>
 #include <eosio/chain_plugin/chain_plugin.hpp>
 #include <eosio_system_tester.hpp>
-
+#include <eosio/chain/system_config.hpp>
 #include <fc/variant_object.hpp>
 
 #include <fc/log/logger.hpp>
@@ -11,6 +11,7 @@
 
 BOOST_AUTO_TEST_SUITE(get_producers_tests)
 using namespace eosio::testing;
+using namespace eosio::chain;
 
 // this test verifies the exception case of get_producer, where it is populated by the active schedule of producers
 BOOST_AUTO_TEST_CASE( get_producers) { try {
@@ -24,7 +25,8 @@ BOOST_AUTO_TEST_CASE( get_producers) { try {
       BOOST_REQUIRE_EQUAL(results.rows.size(), 1);
       const auto& row = results.rows[0].get_object();
       BOOST_REQUIRE(row.contains("owner"));
-      BOOST_REQUIRE_EQUAL(row["owner"].as_string(), "eosio");
+      name sname(SYSTEM_ACCOUNT_NAME);
+      BOOST_REQUIRE_EQUAL(row["owner"].as_string(), sname.to_string());
       // check for producer_authority, since it is only set when the producer schedule is used
       BOOST_REQUIRE(row.contains("producer_authority"));
 
